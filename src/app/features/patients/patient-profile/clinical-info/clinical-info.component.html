@@ -1,0 +1,65 @@
+<div class="clinical-card">
+  <div class="clinical-grid">
+
+    <!-- Chief Complaint -->
+    <div class="clinical-section">
+      <div class="section-label">Chief Complaint</div>
+      <p-multiselect
+        [options]="chiefComplaintOptions"
+        [(ngModel)]="selectedChiefComplaints"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select complaints"
+        styleClass="clinical-multiselect"
+        [showClear]="true"
+        display="chip"
+      ></p-multiselect>
+    </div>
+
+    <!-- Medical History -->
+    <div class="clinical-section">
+      <div class="section-label">Medical History</div>
+      <p-multiselect
+        [options]="medicalHistoryOptions"
+        [(ngModel)]="selectedMedicalHistory"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select medical history"
+        styleClass="clinical-multiselect"
+        [showClear]="true"
+        display="chip"
+      ></p-multiselect>
+    </div>
+
+    <!-- Dental History -->
+    <div class="clinical-section">
+      <div class="section-label">Dental History</div>
+      <p-multiselect
+        [options]="dentalHistoryOptions"
+        [(ngModel)]="selectedDentalHistory"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select dental history"
+        styleClass="clinical-multiselect"
+        [showClear]="true"
+        display="chip"
+      ></p-multiselect>
+    </div>
+
+    <!-- On Examination -->
+    <div class="clinical-section">
+      <div class="section-label">On Examination</div>
+      <p-multiselect
+        [options]="onExaminationOptions"
+        [(ngModel)]="selectedOnExamination"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select examination findings"
+        styleClass="clinical-multiselect"
+        [showClear]="true"
+        display="chip"
+      ></p-multiselect>
+    </div>
+
+  </div>
+</div>

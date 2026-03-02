@@ -28,6 +28,7 @@ export class AppMenu {
         items: [
           // Home page inside the Sakai layout shell
           { label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/app'] },
+          { label: 'Doctor Dashboard', icon: 'pi pi-fw pi-user', routerLink: ['/app/doctor-dashboard'] },
 
           // These can temporarily point to Home until you create real pages/routes
           { label: 'Patients', icon: 'pi pi-fw pi-users', routerLink: ['/app'] },

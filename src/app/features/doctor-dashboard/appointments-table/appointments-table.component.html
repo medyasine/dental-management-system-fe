@@ -1,0 +1,121 @@
+<!-- src/app/features/doctor-dashboard/appointments-table/appointments-table.component.html -->
+<p-card>
+  <div class="flex align-items-center gap-2 mb-3 flex-wrap appointments-toolbar-row">
+    <h3 class="text-xl font-semibold m-0 mr-1">Appointments</h3>
+
+    <p-iconfield styleClass="appt-search">
+      <p-inputicon styleClass="pi pi-search appt-search__icon" />
+      <input
+        pInputText
+        class="appt-search__input"
+        [ngModel]="searchQuery"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search Appointment by patient name"
+        maxlength="200"
+        autocomplete="off"
+        inputmode="search"
+      />
+    </p-iconfield>
+
+    <div class="flex align-items-center gap-2 ml-auto appointments-right-group">
+      <p-datepicker
+        [ngModel]="dateRange"
+        (ngModelChange)="onDateRangeLocalChange($event)"
+        selectionMode="range"
+        [readonlyInput]="true"
+        placeholder="mm/dd/yyyy - mm/dd/yyyy"
+        [showIcon]="true"
+        style="width: 15rem;"
+      ></p-datepicker>
+
+      <p-button
+        *ngFor="let f of filterOptions"
+        [label]="f.label"
+        [outlined]="activeFilter !== f.value"
+        size="small"
+        (onClick)="onFilterLocalChange(f.value)"
+      ></p-button>
+    </div>
+  </div>
+
+  <p-table
+    [value]="value"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25]"
+    styleClass="p-datatable-sm p-datatable-gridlines"
+    [rowHover]="true"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>No.</th>
+        <th pSortableColumn="date">Date <p-sortIcon field="date"></p-sortIcon></th>
+        <th pSortableColumn="patient">Patient <p-sortIcon field="patient"></p-sortIcon></th>
+        <th>Phone</th>
+        <th>Gender</th>
+        <th>Age</th>
+        <th>Chief Complaints</th>
+        <th>Token</th>
+        <th>Doctor</th>
+        <th>Status</th>
+        <th>Consultation</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-appt>
+      <tr [ngClass]="{ 'row-completed': appt.status === 'Completed' }">
+        <td>{{ appt.no }}</td>
+        <td>
+          <div>{{ appt.date }}</div>
+          <div class="text-400 text-sm">{{ appt.time }}</div>
+        </td>
+        <td>
+          <div class="flex align-items-center gap-2">
+            <span
+              class="patient-dot"
+              [ngClass]="appt.gender === 'Male' ? 'dot-male' : 'dot-female'"
+            ></span>
+            {{ appt.patient }}
+          </div>
+        </td>
+        <td>{{ appt.phone }}</td>
+        <td>{{ appt.gender }}</td>
+        <td>{{ appt.age }}</td>
+        <td>{{ appt.chiefComplaints }}</td>
+        <td><span class="font-bold">{{ appt.token }}</span></td>
+        <td>{{ appt.doctor }}</td>
+        <td>
+          <p-tag
+            [value]="appt.status"
+            [severity]="getStatusSeverity(appt.status)"
+          ></p-tag>
+        </td>
+
+        <!-- Consultation column: Start button -->
+        <td>
+          <p-button
+            label="Start"
+            size="small"
+            styleClass="start-btn"
+            (onClick)="openTreatmentDialog(appt)"
+          ></p-button>
+        </td>
+
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="11" class="text-center text-400 py-4">No appointments found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<!-- Start Treatment Dialog -->
+<app-start-treatment-dialog
+  [(visible)]="treatmentDialogVisible"
+  [appointment]="selectedAppointment"
+  (startNewTreatment)="treatmentDialogVisible = false"
+></app-start-treatment-dialog>

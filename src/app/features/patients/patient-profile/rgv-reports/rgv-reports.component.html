@@ -1,0 +1,87 @@
+<!-- src/app/features/patient-profile/rgv-reports/rgv-reports.component.html -->
+<div class="rgv-card">
+  <h3 class="section-title">RGV Reports & Notes</h3>
+
+  <!-- X-ray image thumbnails -->
+  <div class="xray-grid" *ngIf="reports.length > 0">
+    <div
+      *ngFor="let report of reports"
+      class="xray-item"
+    >
+      <!-- Zoom label on hover -->
+      <div class="zoom-label" (click)="openZoom(report)">
+        Click for zoom view
+      </div>
+
+      <!-- Image -->
+      <div class="xray-img-wrap" (click)="openZoom(report)">
+        <img
+          [src]="report.imageUrl"
+          [alt]="'X-ray ' + report.date"
+          class="xray-img"
+          loading="lazy"
+        />
+      </div>
+
+      <!-- Footer: date + delete -->
+      <div class="xray-footer">
+        <span class="xray-date">{{ report.date }}</span>
+        <button
+          class="delete-btn"
+          (click)="deleteReport(report.id)"
+          title="Delete report"
+        >
+          <i class="pi pi-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes list -->
+  <div class="notes-list" *ngIf="notes.length > 0">
+    <div
+      *ngFor="let note of notes"
+      class="note-card"
+    >
+      <div class="note-header">
+        <div class="note-meta">
+          <span class="note-author">{{ note.author }}</span>
+          <span class="note-date">{{ note.date }}</span>
+        </div>
+        <button
+          class="note-delete-btn"
+          (click)="deleteNote(note.id)"
+          title="Delete note"
+        >
+          <i class="pi pi-trash"></i>
+        </button>
+      </div>
+      <p class="note-content">{{ note.content }}</p>
+    </div>
+  </div>
+
+  <!-- Add More Report button -->
+  <button class="add-report-btn" (click)="addMoreReport()">
+    <i class="pi pi-plus-circle"></i>
+    <span>Add More Report</span>
+  </button>
+
+  <!-- Zoom dialog -->
+  <p-dialog
+    [(visible)]="zoomVisible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="zoom-dialog"
+    [style]="{ width: '600px', maxWidth: '95vw' }"
+  >
+    <ng-template pTemplate="header">
+      <span class="font-semibold">X-Ray — {{ zoomedDate }}</span>
+    </ng-template>
+    <img
+      [src]="zoomedImage"
+      alt="Zoomed X-ray"
+      style="width: 100%; border-radius: 8px;"
+    />
+  </p-dialog>
+</div>

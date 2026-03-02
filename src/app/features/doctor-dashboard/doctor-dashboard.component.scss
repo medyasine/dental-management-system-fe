@@ -1,0 +1,137 @@
+/* src/app/doctor-dashboard/doctor-dashboard.component.scss (updated) */
+.doctor-dashboard {
+  background: var(--surface-ground);
+  min-height: 100vh;
+}
+
+/* Header / Hero Section */
+.dashboard-header {
+  background: #e6faf6;
+  border-radius: 16px;
+  border: 1px solid #c2efe6;
+}
+
+/* Stat Cards */
+.stat-card {
+  position: relative;
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  :host ::ng-deep & .p-card-body {
+    padding: 1.25rem;
+  }
+}
+
+.stat-card-inner {
+  position: relative;
+}
+
+.stat-action {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 1rem;
+  color: var(--text-color-secondary);
+  opacity: 0.65;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.stat-icon-wrap {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.stat-green {
+    background: #d1fae5;
+    color: #059669;
+  }
+  &.stat-peach {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  &.stat-rose {
+    background: #ffe4e6;
+    color: #e11d48;
+  }
+  &.stat-lavender {
+    background: #ede9fe;
+    color: #7c3aed;
+  }
+}
+
+/* Doctor Selector */
+:host ::ng-deep .doctor-selector.p-select {
+  background: #2dd4bf !important;
+  border-color: #2dd4bf !important;
+  border-radius: 10px;
+
+  .p-select-label {
+    font-weight: 600;
+    color: #fff !important;
+  }
+
+  .p-select-dropdown {
+    color: #fff !important;
+  }
+
+  &:hover,
+  &.p-focus {
+    background: #14b8a6 !important;
+    border-color: #14b8a6 !important;
+    box-shadow: 0 0 0 2px #99f6e4 !important;
+  }
+}
+
+/* Stat cards row layout */
+.stat-cards-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+.stat-card-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .stat-cards-row {
+    flex-wrap: wrap;
+  }
+  .stat-card-col {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .stat-cards-row {
+    flex-wrap: wrap;
+  }
+  .stat-card-col {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: calc(50% - 0.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-card-col {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+}

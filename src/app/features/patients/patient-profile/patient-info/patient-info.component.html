@@ -1,0 +1,70 @@
+<div class="patient-info-card">
+
+  <!-- Top row: name far left | contact + view profile far right -->
+  <div class="info-top-row">
+
+    <h2 class="patient-name">{{ patient.name }}</h2>
+
+    <div class="top-right-group">
+      <span class="contact-item">
+        <i class="pi pi-map-marker"></i>
+        {{ patient.location }}
+      </span>
+      <span class="contact-item">
+        <i class="pi pi-phone"></i>
+        {{ patient.phone }}
+      </span>
+      <span class="contact-item">
+        <i class="pi pi-envelope"></i>
+        {{ patient.email || '--' }}
+      </span>
+
+      <button class="view-profile-btn">View Profile</button>
+    </div>
+
+  </div>
+
+  <!-- Divider -->
+  <div class="info-divider"></div>
+
+  <!-- Bottom row: meta fields -->
+  <div class="info-meta-row">
+
+    <div class="meta-item">
+      <span class="meta-label">Gender</span>
+      <span class="meta-value">{{ patient.gender }}</span>
+    </div>
+
+    <div class="meta-item">
+      <span class="meta-label">Age</span>
+      <span class="meta-value">{{ patient.age }}</span>
+    </div>
+
+    <div class="meta-item">
+      <span class="meta-label">Patient ID</span>
+      <span class="meta-value">{{ patient.patientId }}</span>
+    </div>
+
+    <div class="meta-item">
+      <span class="meta-label">Token</span>
+      <span class="meta-value">{{ patient.token }}</span>
+    </div>
+
+    <div class="meta-item">
+      <span class="meta-label">Booking Date</span>
+      <span class="meta-value">{{ patient.bookingDate }}</span>
+    </div>
+
+    <div class="meta-item meta-alerts">
+      <span class="meta-label">Alerts</span>
+      <div class="alerts-row">
+        <span *ngFor="let alert of patient.alerts" class="alert-badge">
+          <i class="pi pi-exclamation-circle"></i>
+          {{ alert }}
+        </span>
+        <span *ngIf="!patient.alerts?.length" class="meta-value">—</span>
+      </div>
+    </div>
+
+  </div>
+</div>

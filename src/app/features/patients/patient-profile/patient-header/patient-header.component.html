@@ -1,0 +1,75 @@
+<!-- src/app/features/patient-profile/patient-header/patient-header.component.html -->
+<div class="patient-header">
+  <div class="header-inner">
+
+    <!-- Left: Back + Doctor selector -->
+    <div class="header-left">
+
+      <!-- Back button -->
+      <button class="back-btn" (click)="onBack()">
+        <i class="pi pi-angle-left"></i>
+        <span>Back</span>
+      </button>
+
+      <!-- Divider -->
+      <div class="header-divider"></div>
+
+      <!-- Doctor selector -->
+      <div class="doctor-select-wrap">
+        <i class="pi pi-user-edit doctor-icon"></i>
+        <p-select
+          class="doctor-selector"
+          [options]="doctors"
+          [(ngModel)]="selectedDoctor"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="header-select"
+        ></p-select>
+      </div>
+
+    </div>
+
+    <!-- Right: Action buttons -->
+    <div class="header-right">
+
+      <!-- View Treatment Plans -->
+      <button
+        class="action-btn action-btn-outlined"
+        (click)="viewTreatmentPlans.emit()"
+      >
+        View Treatment Plans
+      </button>
+
+      <!-- Save icon -->
+      <button
+        class="icon-btn"
+        pTooltip="Save"
+        tooltipPosition="bottom"
+        (click)="saveRecord.emit()"
+      >
+        <i class="pi pi-save"></i>
+      </button>
+
+      <!-- Download icon -->
+      <button
+        class="icon-btn"
+        pTooltip="Download"
+        tooltipPosition="bottom"
+        (click)="downloadRecord.emit()"
+      >
+        <i class="pi pi-download"></i>
+      </button>
+
+      <!-- Share icon -->
+      <button
+        class="icon-btn"
+        pTooltip="Share"
+        tooltipPosition="bottom"
+        (click)="shareRecord.emit()"
+      >
+        <i class="pi pi-share-alt"></i>
+      </button>
+
+    </div>
+  </div>
+</div>

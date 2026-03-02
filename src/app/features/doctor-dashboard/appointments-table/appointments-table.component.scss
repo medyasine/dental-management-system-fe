@@ -1,0 +1,102 @@
+/* src/app/features/doctor-dashboard/appointments-table/appointments-table.component.scss */
+.row-completed td {
+  color: var(--text-color-secondary);
+  background: var(--surface-50);
+}
+
+.patient-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+
+  &.dot-male {
+    background: #f59e0b;
+  }
+  &.dot-female {
+    background: #f59e0b;
+  }
+}
+
+@media (max-width: 768px) {
+  .appointments-toolbar-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .appointments-toolbar-row input,
+  .appointments-toolbar-row p-datepicker,
+  .appointments-toolbar-row p-iconfield {
+    width: 100% !important;
+  }
+
+  .appointments-right-group {
+    width: 100%;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    margin-left: 0 !important;
+  }
+
+  .appointments-right-group p-datepicker {
+    width: 100% !important;
+  }
+}
+
+:host ::ng-deep .appt-search {
+  width: 20rem;
+  display: block;
+}
+
+:host ::ng-deep .appt-search .p-icon-field {
+  width: 100%;
+}
+
+:host ::ng-deep .appt-search .appt-search__input.p-inputtext {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: #f3f4f6;
+  padding-left: 2.5rem;
+  box-shadow: none;
+}
+
+:host ::ng-deep .appt-search .appt-search__input.p-inputtext::placeholder {
+  color: #9ca3af;
+}
+
+:host ::ng-deep .appt-search .appt-search__icon {
+  left: 0.9rem;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+:host ::ng-deep .appt-search .appt-search__input.p-inputtext:focus {
+  background: #ffffff;
+  border-color: #d1d5db;
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.18);
+}
+
+@media (max-width: 768px) {
+  :host ::ng-deep .appt-search {
+    width: 100% !important;
+  }
+}
+
+/* Start button in consultation column */
+:host ::ng-deep .start-btn.p-button {
+  background: #2dd4bf;
+  border-color: #2dd4bf;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 7px;
+  padding: 0.3rem 1rem;
+  font-size: 0.8rem;
+
+  &:hover {
+    background: #14b8a6 !important;
+    border-color: #14b8a6 !important;
+  }
+}

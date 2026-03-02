@@ -1,0 +1,174 @@
+// src/app/features/patient-profile/patient-header/patient-header.component.scss
+
+.patient-header {
+  background: var(--surface-0);
+  border-bottom: 1px solid var(--surface-200);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 1.5rem;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  gap: 1rem;
+}
+
+/* ── Left side ─────────────────────────────────────── */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Back button */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #2dd4bf;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.15s;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background: rgba(45, 212, 191, 0.08);
+  }
+}
+
+/* Vertical divider between back and doctor selector */
+.header-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--surface-300);
+  flex-shrink: 0;
+}
+
+/* Doctor selector wrapper */
+.doctor-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.doctor-icon {
+  color: var(--text-color-secondary);
+  font-size: 0.95rem;
+}
+
+/* Override PrimeNG select to look like a plain inline selector */
+:host ::ng-deep .doctor-selector .header-select.p-select {
+  border: 1px solid var(--surface-200);
+  border-radius: 8px;
+  background: var(--surface-50);
+  min-width: 10rem;
+
+  .p-select-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-color);
+    padding: 0.35rem 0.75rem;
+  }
+
+  .p-select-dropdown {
+    color: var(--text-color-secondary);
+  }
+
+  &:hover {
+    border-color: #2dd4bf;
+  }
+
+  &.p-focus {
+    border-color: #2dd4bf;
+    box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2);
+  }
+}
+
+/* ── Right side ─────────────────────────────────────── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* "View Treatment Plans" outlined button */
+.action-btn-outlined {
+  background: transparent;
+  border: 1.5px solid var(--surface-300);
+  border-radius: 8px;
+  padding: 0.35rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: #2dd4bf;
+    color: #0d9488;
+    background: rgba(45, 212, 191, 0.06);
+  }
+}
+
+/* Square icon buttons */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1.5px solid var(--surface-300);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-color-secondary);
+  transition: all 0.15s;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &:hover {
+    border-color: #2dd4bf;
+    color: #0d9488;
+    background: rgba(45, 212, 191, 0.06);
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .patient-header {
+    padding: 0 1rem;
+  }
+
+  .header-inner {
+    height: auto;
+    padding: 0.75rem 0;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .action-btn-outlined {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+}

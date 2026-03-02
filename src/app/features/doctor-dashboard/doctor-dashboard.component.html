@@ -1,0 +1,61 @@
+<!-- src/app/doctor-dashboard/doctor-dashboard.component.html (updated) -->
+<div class="doctor-dashboard p-4">
+  <div class="dashboard-header p-4 mb-4">
+    <div class="flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <h2 class="text-3xl font-bold m-0">
+        👋 Hi {{ doctorName }},
+      </h2>
+
+      <p-select
+        class="doctor-selector"
+        styleClass="w-16rem teal-select"
+        [options]="doctors"
+        [(ngModel)]="selectedDoctor"
+        optionLabel="label"
+        optionValue="value"
+      ></p-select>
+    </div>
+
+    <div class="stat-cards-row">
+      <div *ngFor="let card of statCards" class="stat-card-col">
+        <p-card styleClass="stat-card h-full">
+          <div class="stat-card-inner">
+            <ng-container *ngIf="card.hasToggle">
+              <i
+                class="pi stat-action cursor-pointer"
+                [class.pi-eye]="!card.hidden"
+                [class.pi-eye-slash]="card.hidden"
+                (click)="toggleVisibility(card)"
+              ></i>
+            </ng-container>
+
+            <div class="flex align-items-center gap-3">
+              <div class="stat-icon-wrap" [ngClass]="card.colorClass">
+                <i class="pi {{ card.icon }} text-2xl"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-500 text-sm font-medium mb-1">{{ card.label }}</div>
+                <div class="text-xl font-bold text-900 white-space-nowrap">
+                  <ng-container *ngIf="card.hasToggle && card.hidden">
+                    {{ card.prefix }}****
+                  </ng-container>
+                  <ng-container *ngIf="!card.hasToggle || !card.hidden">
+                    {{ card.prefix }}{{ getStatValue(card.valueKey) }}{{ card.suffix }}
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+
+  <app-appointments-table
+    [value]="filteredAppointments"
+    (searchQueryChange)="onApptSearch($event)"
+    (dateRangeChange)="onApptDateRangeChange($event)"
+    (filterChange)="onApptFilterChange($event)"
+  ></app-appointments-table>
+</div>

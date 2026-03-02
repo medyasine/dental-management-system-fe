@@ -1,0 +1,151 @@
+// src/app/features/patient-profile/patient-info/patient-info.component.scss
+
+.patient-info-card {
+  background: #f0fdfb;              /* ← mint background restored */
+  border: 1px solid #ccfbf1;        /* ← mint border restored */
+  border-radius: 14px;
+  padding: 1.1rem 1.5rem;
+}
+
+/* ── Top row ──────────────────────────────────────── */
+.info-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.patient-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.top-right-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 0.82rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+.view-profile-btn {
+  background: transparent;
+  border: 1.5px solid var(--surface-300);
+  border-radius: 8px;
+  padding: 0.35rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #2dd4bf;
+    color: #0d9488;
+  }
+}
+
+/* ── Divider — more visible on mint bg ───────────── */
+.info-divider {
+  height: 1px;
+  background: #a7f3d0;              /* ← slightly darker mint line, visible on mint bg */
+  margin: 1rem 0;
+}
+
+/* ── Meta row — wider gaps matching target ────────── */
+.info-meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;                           /* remove gap, use flex spacing instead */
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 100px;
+  flex: 1;                          /* equal spacing across all items */
+}
+
+/* Last meta item (alerts) stays right */
+.meta-alerts {
+  flex: 0 0 auto;
+  margin-left: auto;
+  min-width: unset;
+  align-items: flex-end;            /* right-align the badge */
+}
+
+.meta-label {
+  font-size: 0.72rem;
+  color: var(--text-color-secondary);
+  letter-spacing: 0.01em;
+}
+
+.meta-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.alerts-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Red outlined alert pill */
+.alert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.8rem;
+  border: 1.5px solid #fca5a5;
+  border-radius: 20px;
+  background: #fff1f2;
+  color: #dc2626;
+  font-size: 0.78rem;
+  font-weight: 500;
+
+  i { font-size: 0.78rem; }
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .info-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .info-meta-row {
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    flex: 0 0 auto;
+    min-width: unset;
+  }
+
+  .meta-alerts {
+    margin-left: 0;
+    align-items: flex-start;
+  }
+}
