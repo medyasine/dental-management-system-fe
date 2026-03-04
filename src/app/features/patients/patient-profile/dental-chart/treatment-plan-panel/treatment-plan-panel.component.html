@@ -1,0 +1,260 @@
+<!-- src/app/features/patient-profile/dental-chart/treatment-plan-panel/treatment-plan-panel.component.html -->
+<div class="panel-backdrop" [class.visible]="visible" (click)="onBackdropClick()">
+  <div class="panel" [class.open]="visible" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="panel-header">
+      <h3 class="panel-title">Treatment Plan for Selected Teeth</h3>
+      <button class="close-btn" (click)="close()" aria-label="Close">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Tooth preview + Surface Selector -->
+    <div class="tooth-preview" *ngIf="tooth">
+      <div class="preview-img-wrap">
+        <img [src]="toothAsset.imagePath" [alt]="'Tooth ' + tooth.number"
+          class="preview-img" [class.mirrored]="toothAsset.mirror" />
+      </div>
+
+      <!-- ── Teeth number label (single: "23" | multi: "27, 28" chip) ── -->
+      <div class="teeth-label-wrap">
+        <span class="teeth-label-chip" [class.multi]="isMultiTooth">
+          {{ teethLabel }}
+        </span>
+      </div>
+
+      <!-- ── Interactive Surface Selector (single tooth only) ──────── -->
+      <div class="surface-selector-wrap" *ngIf="!isMultiTooth">
+        <div class="surface-tooltip" [class.visible]="hoveredSurface !== null">{{ hoveredSurface }}</div>
+
+        <!--
+          Coordinate system (mathematically verified):
+            Circle center: cx=50, cy=65  |  Outer r=22  |  Inner r=9
+            Outer cardinal: Top(50,43) Right(72,65) Bottom(50,87) Left(28,65)
+            Inner cardinal: Top(50,56) Right(59,65) Bottom(50,74) Left(41,65)
+
+          Each slice = donut ring segment. Zero pixel overlap guaranteed.
+          Path formula: M[inner-start] L[outer-start] A[ro ro 0 0 1 outer-end] L[inner-end] A[ri ri 0 0 0 inner-start] Z
+        -->
+        <svg class="surface-svg" width="100" height="108" viewBox="0 0 100 108" fill="none">
+
+          <!--
+            Coordinate system: circle cx=50 cy=65 r=22, inner r=9
+            Outer: Top(50,43) Right(72,65) Bottom(50,87) Left(28,65)
+            Inner: Top(50,56) Right(59,65) Bottom(50,74) Left(41,65)
+
+            ROOT: transparent fill = invisible, only the stroke arc is visible.
+            CENTER: white base circle so it always looks hollow/empty.
+                    The .selected class overrides fill to teal.
+          -->
+
+          <!-- ── ROOT hit area (transparent, wide so easy to click) ── -->
+          <path class="surface-region root-region"
+            [class.selected]="isSurfaceSelected('R')"
+            [class.hovered]="hoveredSurface === 'Root'"
+            d="M 18 52 A 32 28 0 0 1 82 52 L 74 52 A 24 20 0 0 0 26 52 Z"
+            (click)="toggleSurface('R'); $event.stopPropagation()"
+            (mouseenter)="hoveredSurface = 'Root'"
+            (mouseleave)="hoveredSurface = null" />
+
+          <!-- ── TOP — Lingual ── -->
+          <path class="surface-region"
+            [class.selected]="isSurfaceSelected('L')"
+            [class.hovered]="hoveredSurface === 'Lingual'"
+            d="M 50 56 L 50 43 A 22 22 0 0 1 72 65 L 59 65 A 9 9 0 0 0 50 56 Z"
+            (click)="toggleSurface('L'); $event.stopPropagation()"
+            (mouseenter)="hoveredSurface = 'Lingual'"
+            (mouseleave)="hoveredSurface = null" />
+
+          <!-- ── RIGHT — Distal ── -->
+          <path class="surface-region"
+            [class.selected]="isSurfaceSelected('D')"
+            [class.hovered]="hoveredSurface === 'Distal'"
+            d="M 59 65 L 72 65 A 22 22 0 0 1 50 87 L 50 74 A 9 9 0 0 0 59 65 Z"
+            (click)="toggleSurface('D'); $event.stopPropagation()"
+            (mouseenter)="hoveredSurface = 'Distal'"
+            (mouseleave)="hoveredSurface = null" />
+
+          <!-- ── BOTTOM — Buccal / Facial ── -->
+          <path class="surface-region"
+            [class.selected]="isSurfaceSelected(buccalCode)"
+            [class.hovered]="hoveredSurface === buccalLabel"
+            d="M 50 74 L 50 87 A 22 22 0 0 1 28 65 L 41 65 A 9 9 0 0 0 50 74 Z"
+            (click)="toggleSurface(buccalCode); $event.stopPropagation()"
+            (mouseenter)="hoveredSurface = buccalLabel"
+            (mouseleave)="hoveredSurface = null" />
+
+          <!-- ── LEFT — Mesial ── -->
+          <path class="surface-region"
+            [class.selected]="isSurfaceSelected('M')"
+            [class.hovered]="hoveredSurface === 'Mesial'"
+            d="M 41 65 L 28 65 A 22 22 0 0 1 50 43 L 50 56 A 9 9 0 0 0 41 65 Z"
+            (click)="toggleSurface('M'); $event.stopPropagation()"
+            (mouseenter)="hoveredSurface = 'Mesial'"
+            (mouseleave)="hoveredSurface = null" />
+
+          <!-- ── CENTER white base (makes circle look hollow/empty always) ── -->
+          <circle cx="50" cy="65" r="9" fill="white" pointer-events="none" />
+
+          <!-- ── CENTER — Occlusal / Incisal (clickable, on top of white base) ── -->
+          <circle class="surface-region"
+            cx="50" cy="65" r="9"
+            [class.selected]="isSurfaceSelected(centerCode)"
+            [class.hovered]="hoveredSurface === centerLabel"
+            (click)="toggleSurface(centerCode); $event.stopPropagation()"
+            (mouseenter)="hoveredSurface = centerLabel"
+            (mouseleave)="hoveredSurface = null" />
+
+          <!-- ══════════════════════════════════════════════════════════
+               STROKE OVERLAYS — pointer-events:none, always visually on top
+               ══════════════════════════════════════════════════════════ -->
+
+          <!-- Root open-U arc: ONLY a stroke, no fill. Grey → teal on select -->
+          <path
+            d="M 28 52 A 22 18 0 0 1 72 52"
+            [attr.stroke]="isSurfaceSelected('R') ? '#2dd4bf' : (hoveredSurface === 'Root' ? '#5eead4' : '#9ca3af')"
+            [attr.stroke-width]="isSurfaceSelected('R') ? '3.5' : '2.5'"
+            fill="none" stroke-linecap="round" pointer-events="none" />
+
+          <!-- Outer circle -->
+          <circle cx="50" cy="65" r="22"
+            stroke="#9ca3af" stroke-width="1.5" fill="none" pointer-events="none"/>
+          <!-- Vertical crosshair -->
+          <line x1="50" y1="43" x2="50" y2="87"
+            stroke="#9ca3af" stroke-width="1.2" pointer-events="none"/>
+          <!-- Horizontal crosshair -->
+          <line x1="28" y1="65" x2="72" y2="65"
+            stroke="#9ca3af" stroke-width="1.2" pointer-events="none"/>
+          <!-- Inner ring (always visible on top of center fill) -->
+          <circle cx="50" cy="65" r="9"
+            stroke="#9ca3af" stroke-width="1.2" fill="none" pointer-events="none"/>
+
+        </svg>
+
+        <!-- Selected surface code badges -->
+        <div class="surface-badges">
+          <span *ngFor="let code of form.surfaces" class="surface-badge">{{ code }}</span>
+        </div>
+      </div><!-- /surface-selector-wrap ngIf -->
+
+      <div class="tooth-number-label" *ngIf="!isMultiTooth">{{ tooth.number }}</div>
+    </div>
+
+    <!-- Scrollable body -->
+    <div class="panel-body">
+
+      <!-- On Examination -->
+      <div class="field">
+        <label class="field-label">On Examination</label>
+        <p class="field-hint">Select from suggestions or add new</p>
+        <div class="tag-input-box" [class.focused]="examinationFocused" (click)="focusExaminationInput()">
+          <span *ngFor="let item of form.examinations" class="tag">
+            {{ item }}
+            <button class="tag-remove" (click)="removeExamination(item); $event.stopPropagation()">
+              <i class="pi pi-times"></i>
+            </button>
+          </span>
+          <button *ngIf="form.examinations.length > 0" class="clear-all-btn"
+            (click)="form.examinations = []; $event.stopPropagation()">
+            <i class="pi pi-times"></i>
+          </button>
+          <span class="divider" *ngIf="form.examinations.length > 0"></span>
+          <input #examinationInput class="tag-input" [(ngModel)]="examinationSearch"
+            (focus)="examinationFocused = true; examinationOpen = true"
+            (blur)="onExaminationBlur()"
+            (keydown.enter)="addCustomExamination()"
+            (input)="filterExaminations()"
+            [placeholder]="form.examinations.length === 0 ? 'Search & Select' : ''" />
+          <i class="pi pi-chevron-down dropdown-arrow"></i>
+        </div>
+        <div class="tag-dropdown" *ngIf="examinationOpen && filteredExaminations.length > 0">
+          <div *ngFor="let opt of filteredExaminations" class="tag-option"
+            [class.tag-option-selected]="form.examinations.includes(opt)"
+            (mousedown)="selectExamination(opt)">{{ opt }}</div>
+        </div>
+      </div>
+
+      <!-- Diagnosis -->
+      <div class="field">
+        <label class="field-label">Diagnosis</label>
+        <p class="field-hint">Select from suggestions or type diagnosis</p>
+        <div class="tag-input-box" [class.focused]="diagnosisFocused" (click)="focusDiagnosisInput()">
+          <span *ngFor="let item of form.diagnoses" class="tag">
+            {{ item }}
+            <button class="tag-remove" (click)="removeDiagnosis(item); $event.stopPropagation()">
+              <i class="pi pi-times"></i>
+            </button>
+          </span>
+          <button *ngIf="form.diagnoses.length > 0" class="clear-all-btn"
+            (click)="form.diagnoses = []; syncSuggestions(); $event.stopPropagation()">
+            <i class="pi pi-times"></i>
+          </button>
+          <span class="divider" *ngIf="form.diagnoses.length > 0"></span>
+          <input #diagnosisInput class="tag-input" [(ngModel)]="diagnosisSearch"
+            (focus)="diagnosisFocused = true; diagnosisOpen = true"
+            (blur)="onDiagnosisBlur()"
+            (keydown.enter)="addCustomDiagnosis()"
+            (input)="filterDiagnoses()"
+            [placeholder]="form.diagnoses.length === 0 ? 'Search & Select' : ''" />
+          <i class="pi pi-chevron-down dropdown-arrow"></i>
+        </div>
+        <div class="tag-dropdown" *ngIf="diagnosisOpen && filteredDiagnoses.length > 0">
+          <div *ngFor="let opt of filteredDiagnoses" class="tag-option"
+            [class.tag-option-selected]="form.diagnoses.includes(opt)"
+            (mousedown)="selectDiagnosis(opt)">{{ opt }}</div>
+        </div>
+      </div>
+
+      <!-- Suggestion chips -->
+      <div class="field">
+        <label class="field-label">Suggestions</label>
+        <div class="chip-list">
+          <button *ngFor="let s of allDiagnosisOptions" class="chip"
+            [class.chip-active]="form.diagnoses.includes(s)"
+            (click)="toggleDiagnosisChip(s)" type="button">{{ s }}</button>
+        </div>
+      </div>
+
+      <!-- Treatment Suggested -->
+      <div class="field">
+        <label class="field-label">Treatment Suggested <span class="required">*</span></label>
+        <p class="field-hint">Select from suggestions or type treatment</p>
+        <div class="tag-input-box single-select" [class.focused]="treatmentFocused" (click)="focusTreatmentInput()">
+          <span *ngIf="form.treatment" class="tag">
+            {{ form.treatment }}
+            <button class="tag-remove" (click)="form.treatment = ''; $event.stopPropagation()">
+              <i class="pi pi-times"></i>
+            </button>
+          </span>
+          <input #treatmentInput class="tag-input" [(ngModel)]="treatmentSearch"
+            (focus)="treatmentFocused = true; treatmentOpen = true"
+            (blur)="onTreatmentBlur()"
+            (input)="filterTreatments()"
+            [placeholder]="!form.treatment ? 'Select a plan' : ''" />
+          <i class="pi pi-chevron-down dropdown-arrow"></i>
+        </div>
+        <div class="tag-dropdown" *ngIf="treatmentOpen && filteredTreatments.length > 0">
+          <div *ngFor="let opt of filteredTreatments" class="tag-option"
+            (mousedown)="selectTreatment(opt)">
+            <span class="treatment-name">{{ opt.name }}</span>
+            <span class="treatment-price" *ngIf="opt.price"> - ₹ {{ opt.price }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick treatment chips -->
+      <div class="quick-treatments">
+        <button *ngFor="let qt of quickTreatments" class="quick-chip"
+          (click)="selectTreatment(qt)" type="button">{{ qt.name }}</button>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="panel-footer">
+      <button class="add-btn" [disabled]="!form.treatment" (click)="onAdd()">Add</button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,258 @@
+<!-- src/app/features/patient-profile/treatment-plans-board/treatment-plans-board.component.html -->
+<div class="board-wrap">
+
+  <!-- ── 3-column kanban board ──────────────────────────────────────────── -->
+  <div class="board">
+
+    <!-- ══ TREATMENT PLANS column ═════════════════════════════════════════ -->
+    <div class="column">
+      <div class="col-header col-header--plan">
+        <span>Treatment Plans</span>
+      </div>
+
+      <div class="cards">
+        <div class="card" *ngFor="let card of planCards">
+          <div class="card-date">{{ card.date }}</div>
+
+          <div class="card-teeth-row">
+            <div class="card-tooth">
+              <img
+                [src]="getAsset(card.toothNumber).path"
+                [alt]="'Tooth ' + card.toothNumber"
+                class="tooth-img"
+                [class.mirrored]="getAsset(card.toothNumber).mirror"
+              />
+              <span class="tooth-number">{{ card.toothNumber }}</span>
+            </div>
+            <div class="tooth-surface-mini" *ngIf="card.surfaces?.length">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <circle cx="14" cy="14" r="11" stroke="#9ca3af" stroke-width="1"/>
+                <line x1="14" y1="3" x2="14" y2="25" stroke="#9ca3af" stroke-width="0.8"/>
+                <line x1="3" y1="14" x2="25" y2="14" stroke="#9ca3af" stroke-width="0.8"/>
+                <circle cx="14" cy="14" r="4" stroke="#9ca3af" stroke-width="0.8" fill="white"/>
+              </svg>
+            </div>
+            <div class="card-diagnosis">
+              <span class="label">Diagnosis</span>
+              <span class="value">{{ card.diagnosis }}</span>
+            </div>
+          </div>
+
+          <div class="card-row mt-8">
+            <div class="card-field">
+              <span class="label">Treatment Name</span>
+              <span class="value treatment-name">{{ card.treatmentName }}</span>
+            </div>
+            <div class="card-field card-field--qty">
+              <span class="label">Qty</span>
+              <div class="qty-control">
+                <button class="qty-btn" (click)="changeQty(card, -1)">-</button>
+                <span class="qty-value">{{ card.qty }}</span>
+                <button class="qty-btn" (click)="changeQty(card, 1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-row mt-8">
+            <div class="card-field">
+              <span class="label">Item Price</span>
+              <div class="price-row" *ngIf="editingPriceId !== card.id">
+                <span class="value">₹{{ card.itemPrice }}</span>
+                <button class="edit-btn" (click)="startEditPrice(card)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+              </div>
+              <div class="price-edit" *ngIf="editingPriceId === card.id">
+                <input type="number" [(ngModel)]="editingPriceValue" class="price-input" />
+                <button class="save-btn" (click)="savePrice(card)">✓</button>
+              </div>
+            </div>
+            <div class="card-field">
+              <span class="label">Total</span>
+              <span class="value">₹{{ card.total }}</span>
+            </div>
+            <div class="card-field">
+              <span class="label">Doctor</span>
+              <span class="value">{{ card.doctor }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions mt-12">
+            <button class="btn btn--outline" (click)="markAsCompleted(card)">Mark as completed</button>
+            <button class="btn btn--outline" (click)="moveToInProgress(card)">Move to in process</button>
+          </div>
+          <button class="btn btn--danger mt-8" (click)="deleteCard(card)">
+            <i class="pi pi-trash"></i> Delete Treatment
+          </button>
+        </div>
+
+        <div class="col-empty" *ngIf="planCards.length === 0">
+          <i class="pi pi-clipboard"></i>
+          <p>No treatment plans yet</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ IN PROGRESS column ══════════════════════════════════════════════ -->
+    <div class="column">
+      <div class="col-header col-header--progress">
+        <span>In Progress</span>
+      </div>
+
+      <div class="cards">
+        <div class="card" *ngFor="let card of inProgressCards">
+          <div class="card-meta-row">
+            <span class="card-date">{{ card.date }}</span>
+            <span class="card-date-right">
+              <i class="pi pi-clock"></i> {{ card.date }}
+            </span>
+          </div>
+
+          <div class="card-teeth-row">
+            <div class="card-tooth">
+              <img
+                [src]="getAsset(card.toothNumber).path"
+                [alt]="'Tooth ' + card.toothNumber"
+                class="tooth-img"
+                [class.mirrored]="getAsset(card.toothNumber).mirror"
+              />
+              <span class="tooth-number">{{ card.toothNumber }}</span>
+            </div>
+            <div class="card-diagnosis">
+              <span class="label">Diagnosis</span>
+              <span class="value">{{ card.diagnosis }}</span>
+            </div>
+          </div>
+
+          <div class="card-row mt-8">
+            <div class="card-field">
+              <span class="label">Treatment Name</span>
+              <span class="value treatment-name">{{ card.treatmentName }}</span>
+            </div>
+            <div class="card-field card-field--qty">
+              <span class="label">Qty</span>
+              <div class="qty-control">
+                <button class="qty-btn" (click)="changeQty(card, -1)">-</button>
+                <span class="qty-value">{{ card.qty }}</span>
+                <button class="qty-btn" (click)="changeQty(card, 1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-row mt-8">
+            <div class="card-field">
+              <span class="label">Item Price</span>
+              <div class="price-row" *ngIf="editingPriceId !== card.id">
+                <span class="value">₹{{ card.itemPrice }}</span>
+                <button class="edit-btn" (click)="startEditPrice(card)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+              </div>
+              <div class="price-edit" *ngIf="editingPriceId === card.id">
+                <input type="number" [(ngModel)]="editingPriceValue" class="price-input" />
+                <button class="save-btn" (click)="savePrice(card)">✓</button>
+              </div>
+            </div>
+            <div class="card-field">
+              <span class="label">Total</span>
+              <span class="value">₹{{ card.total }}</span>
+            </div>
+            <div class="card-field">
+              <span class="label">Doctor</span>
+              <span class="value">{{ card.doctor }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions mt-12">
+            <button class="btn btn--outline" (click)="addNotes(card)">Add Notes</button>
+            <button class="btn btn--outline" (click)="markAsCompleted(card)">Mark as completed</button>
+          </div>
+          <button class="btn btn--danger mt-8" (click)="deleteCard(card)">
+            <i class="pi pi-trash"></i> Delete Treatment
+          </button>
+        </div>
+
+        <div class="col-empty" *ngIf="inProgressCards.length === 0">
+          <i class="pi pi-spinner"></i>
+          <p>Nothing in progress</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ COMPLETED column ════════════════════════════════════════════════ -->
+    <div class="column">
+      <div class="col-header col-header--completed">
+        <span>Completed</span>
+      </div>
+
+      <div class="cards">
+        <div class="card" *ngFor="let card of completedCards">
+          <div class="card-meta-row">
+            <span class="card-date">{{ card.date }}</span>
+            <span class="card-date-right">
+              <i class="pi pi-clock"></i> {{ card.date }}
+            </span>
+          </div>
+
+          <div class="card-teeth-row">
+            <div class="card-tooth">
+              <img
+                [src]="getAsset(card.toothNumber).path"
+                [alt]="'Tooth ' + card.toothNumber"
+                class="tooth-img"
+                [class.mirrored]="getAsset(card.toothNumber).mirror"
+              />
+              <span class="tooth-number">{{ card.toothNumber }}</span>
+            </div>
+            <div class="card-diagnosis">
+              <span class="label">Diagnosis</span>
+              <span class="value">{{ card.diagnosis }}</span>
+            </div>
+          </div>
+
+          <div class="card-row mt-8">
+            <div class="card-field">
+              <span class="label">Treatment Name</span>
+              <span class="value treatment-name">{{ card.treatmentName }}</span>
+            </div>
+            <div class="card-field card-field--qty">
+              <span class="label">Qty</span>
+              <div class="qty-control">
+                <button class="qty-btn" (click)="changeQty(card, -1)">-</button>
+                <span class="qty-value">{{ card.qty }}</span>
+                <button class="qty-btn" (click)="changeQty(card, 1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-row mt-8">
+            <div class="card-field">
+              <span class="label">Item Price</span>
+              <span class="value">₹{{ card.itemPrice }}</span>
+            </div>
+            <div class="card-field">
+              <span class="label">Total</span>
+              <span class="value">₹{{ card.total }}</span>
+            </div>
+            <div class="card-field">
+              <span class="label">Doctor</span>
+              <span class="value">{{ card.doctor }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions mt-12">
+            <button class="btn btn--presenter" (click)="presenterMode()">
+              <i class="pi pi-desktop"></i> Presenter Mode
+            </button>
+          </div>
+        </div>
+
+        <div class="col-empty" *ngIf="completedCards.length === 0">
+          <i class="pi pi-check-circle"></i>
+          <p>No completed treatments</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

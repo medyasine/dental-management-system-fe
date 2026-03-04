@@ -1,0 +1,195 @@
+// treatment-plan-panel.component.scss
+
+.panel-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: transparent; pointer-events: none; transition: background 0.3s;
+  &.visible { background: rgba(0,0,0,0.3); pointer-events: all; }
+}
+
+.panel {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 500px; max-width: 100vw;
+  background: #fff; display: flex; flex-direction: column;
+  box-shadow: -6px 0 40px rgba(0,0,0,0.1);
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  &.open { transform: translateX(0); }
+}
+
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+}
+.panel-title { font-size: 1.05rem; font-weight: 700; color: #111827; margin: 0; }
+.close-btn {
+  width: 30px; height: 30px; border: none; background: transparent;
+  border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; color: #6b7280; font-size: 0.85rem; transition: background 0.15s;
+  &:hover { background: #f3f4f6; }
+}
+
+// ── Tooth preview row ──────────────────────────────────────────────────────
+.tooth-preview {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 1.5rem; border-bottom: 1px solid #f5f5f5; flex-shrink: 0;
+}
+.preview-img-wrap {
+  width: 36px; height: 68px; display: flex; align-items: flex-end; justify-content: center;
+}
+.preview-img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  &.mirrored { transform: scaleX(-1); }
+}
+
+// Teeth number label — grey pill for single "23", larger teal-tinted pill for "27, 28"
+.teeth-label-wrap { display: flex; align-items: center; }
+.teeth-label-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.9rem;
+  background: #f3f4f6;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 0.01em;
+
+  &.multi {
+    background: #e0fdf4;
+    color: #0f766e;
+    font-size: 1.1rem;
+    padding: 0.45rem 1.1rem;
+  }
+}
+
+.tooth-number-label { font-size: 1.6rem; font-weight: 700; color: #111827; }
+
+// ── Surface selector ───────────────────────────────────────────────────────
+.surface-selector-wrap {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; overflow: visible;
+}
+
+.surface-tooltip {
+  position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+  background: #1f2937; color: #fff; font-size: 0.7rem; font-weight: 500;
+  padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+  pointer-events: none; opacity: 0; transition: opacity 0.12s;
+  &.visible { opacity: 1; }
+}
+
+.surface-svg { display: block; overflow: visible; }
+
+// All clickable SVG regions — independent toggle per region
+.surface-region {
+  fill: transparent;
+  cursor: pointer;
+  transition: fill 0.13s ease;
+
+  &.hovered:not(.selected) { fill: rgba(45, 212, 191, 0.18); }
+  &.selected                { fill: rgba(45, 212, 191, 0.6);  }
+  &.selected.hovered        { fill: rgba(45, 212, 191, 0.78); }
+}
+
+// Root region: visual is the stroke arc only — keep fill always invisible
+// The stroke color is controlled via [attr.stroke] binding in the template
+.surface-region.root-region {
+  fill: transparent !important;
+}
+
+.surface-badges {
+  display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; min-height: 18px;
+}
+.surface-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  background: #2dd4bf; color: #fff; border-radius: 4px;
+  font-size: 0.65rem; font-weight: 700;
+}
+
+// ── Panel body ─────────────────────────────────────────────────────────────
+.panel-body {
+  flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem;
+  display: flex; flex-direction: column; gap: 1.375rem;
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+}
+
+.field { display: flex; flex-direction: column; gap: 0.3rem; position: relative; }
+.field-label { font-size: 0.9375rem; font-weight: 700; color: #111827; }
+.field-hint { font-size: 0.8rem; color: #9ca3af; margin: 0; font-style: italic; }
+.required { color: #ef4444; }
+
+.tag-input-box {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  min-height: 44px; padding: 6px 40px 6px 10px;
+  border: 1.5px solid #e5e7eb; border-radius: 8px; background: #fff;
+  cursor: text; position: relative; transition: border-color 0.2s, box-shadow 0.2s;
+  &.focused { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+  &.single-select { flex-wrap: nowrap; overflow: hidden; }
+}
+.tag {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px 3px 10px;
+  background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 6px;
+  font-size: 0.84rem; color: #374151; white-space: nowrap; flex-shrink: 0;
+}
+.tag-remove {
+  border: none; background: transparent; cursor: pointer; padding: 0;
+  color: #9ca3af; font-size: 0.65rem; display: flex; align-items: center; line-height: 1;
+  &:hover { color: #ef4444; }
+}
+.clear-all-btn {
+  border: none; background: transparent; cursor: pointer; padding: 2px 4px;
+  color: #9ca3af; font-size: 0.75rem; display: flex; align-items: center; flex-shrink: 0;
+  &:hover { color: #6b7280; }
+}
+.divider { width: 1px; height: 20px; background: #e5e7eb; flex-shrink: 0; }
+.tag-input {
+  flex: 1; min-width: 80px; border: none; outline: none;
+  font-size: 0.9rem; color: #374151; background: transparent; padding: 2px 0;
+  &::placeholder { color: #9ca3af; }
+}
+.dropdown-arrow {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 0.75rem; color: #9ca3af; pointer-events: none;
+}
+
+.tag-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1); z-index: 100; max-height: 240px; overflow-y: auto;
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+}
+.tag-option {
+  padding: 0.7rem 1rem; font-size: 0.9rem; color: #374151; cursor: pointer;
+  display: flex; align-items: center; gap: 0.5rem; transition: background 0.1s;
+  &:hover { background: #f9fafb; }
+  &.tag-option-selected { background: #eff6ff; color: #1d4ed8; }
+}
+.treatment-name { font-size: 0.875rem; font-weight: 500; color: #111827; }
+.treatment-price { font-size: 0.875rem; color: #6b7280; }
+
+.chip-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip {
+  padding: 0.4rem 1rem; border: 1.5px solid #2dd4bf; border-radius: 20px;
+  background: transparent; color: #0f766e; font-size: 0.84rem; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+  &:hover { background: rgba(45,212,191,0.08); }
+  &.chip-active { background: #2dd4bf; color: #fff; border-color: #2dd4bf; }
+}
+
+.quick-treatments { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.quick-chip {
+  padding: 0.5rem 1.1rem; border: 1.5px solid #d1d5db; border-radius: 20px;
+  background: #fff; color: #374151; font-size: 0.8rem; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.01em;
+  &:hover { border-color: #2dd4bf; color: #0f766e; }
+}
+
+.panel-footer { padding: 1rem 1.5rem; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+.add-btn {
+  width: 100%; padding: 0.875rem; background: #2dd4bf; color: #fff; border: none;
+  border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  &:hover:not(:disabled) { background: #14b8a6; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}

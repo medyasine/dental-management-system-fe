@@ -1,0 +1,89 @@
+<!-- src/app/features/patient-profile/rgv-reports/rgv-report-dialog/rgv-report-dialog.component.html -->
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  styleClass="rgv-dialog"
+  [style]="{ width: '560px', maxWidth: '95vw' }"
+  (onHide)="onCancel()"
+>
+  <ng-template pTemplate="header">
+    <span class="dialog-title">RGV Report &amp; Note</span>
+  </ng-template>
+
+  <div class="dialog-body">
+    <!-- Uploaded Reports Section -->
+    <section class="upload-section">
+      <h4 class="section-label">Uploaded Report</h4>
+
+      <div class="report-grid">
+        <!-- Existing uploaded images -->
+        <div
+          *ngFor="let file of uploadedFiles; let i = index"
+          class="report-card"
+        >
+          <button class="remove-btn" (click)="removeFile(i)" type="button">
+            <i class="pi pi-times"></i>
+          </button>
+          <div class="report-img-wrap">
+            <img [src]="file.preview" alt="Report preview" class="report-img" />
+          </div>
+          <span class="report-label">{{ file.name || 'Report ' + (i + 1) }}</span>
+        </div>
+
+        <!-- Upload more placeholder card (shown when < max files) -->
+        <div
+          *ngIf="uploadedFiles.length < maxFiles"
+          class="report-card upload-placeholder"
+          (click)="fileInput.click()"
+        >
+          <i class="pi pi-plus upload-plus-icon"></i>
+          <span class="report-label">Add image</span>
+        </div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        multiple
+        hidden
+        (change)="onFilesSelected($event)"
+      />
+    </section>
+
+    <!-- Notes Section -->
+    <section class="notes-section">
+      <h4 class="section-label">Add Notes</h4>
+      <textarea
+        class="notes-textarea"
+        [(ngModel)]="noteText"
+        placeholder="Write your notes here..."
+        rows="5"
+      ></textarea>
+    </section>
+
+    <!-- Upload More Reports button -->
+    <button class="upload-more-btn" type="button" (click)="fileInput.click()">
+      <i class="pi pi-plus-circle"></i>
+      <span>Upload More Reports</span>
+    </button>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button
+      class="submit-btn"
+      type="button"
+      [disabled]="isSubmitting"
+      (click)="onSubmit()"
+    >
+      <span *ngIf="!isSubmitting">Submit</span>
+      <span *ngIf="isSubmitting">
+        <i class="pi pi-spin pi-spinner"></i> Saving…
+      </span>
+    </button>
+  </ng-template>
+</p-dialog>

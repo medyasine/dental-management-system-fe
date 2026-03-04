@@ -1,0 +1,202 @@
+// src/app/features/patient-profile/rgv-reports/rgv-report-dialog/rgv-report-dialog.component.scss
+
+// ── PrimeNG dialog overrides (encapsulation: None not needed — use ::ng-deep) ──
+:host ::ng-deep .rgv-dialog {
+  .p-dialog-header {
+    padding: 1.25rem 1.5rem 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+
+    .p-dialog-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+  }
+
+  .p-dialog-content {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .p-dialog-footer {
+    padding: 0 1.5rem 1.5rem;
+    border-top: none;
+  }
+}
+
+// ── Dialog body ───────────────────────────────────────────────────────────────
+.dialog-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── Section labels ─────────────────────────────────────────────────────────
+.section-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 0.75rem;
+}
+
+// ── Report image grid ──────────────────────────────────────────────────────
+.report-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+}
+
+.report-card {
+  position: relative;
+  width: 160px;
+  border: 1.5px solid #d0e8e4;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fdfc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: #20c997;
+  }
+}
+
+.report-img-wrap {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.report-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.report-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  z-index: 2;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(220, 38, 38, 0.85);
+  }
+}
+
+// ── Upload placeholder ─────────────────────────────────────────────────────
+.upload-placeholder {
+  cursor: pointer;
+  justify-content: center;
+  height: 153px; // img-wrap + label height
+  border-style: dashed;
+
+  &:hover {
+    background: #eef9f6;
+  }
+}
+
+.upload-plus-icon {
+  font-size: 1.75rem;
+  color: #20c997;
+  margin-bottom: 0.25rem;
+}
+
+// ── Notes textarea ─────────────────────────────────────────────────────────
+.notes-textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1.5px solid #d0e8e4;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: #1a1a2e;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: #20c997;
+    box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.15);
+  }
+
+  &::placeholder {
+    color: #adb5bd;
+  }
+}
+
+// ── Upload more button ─────────────────────────────────────────────────────
+.upload-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1.5px dashed #20c997;
+  border-radius: 8px;
+  background: transparent;
+  color: #20c997;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #eef9f6;
+  }
+}
+
+// ── Submit button ──────────────────────────────────────────────────────────
+.submit-btn {
+  width: 100%;
+  padding: 0.875rem;
+  background: #20c997;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #17a589;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}

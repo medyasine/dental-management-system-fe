@@ -2,11 +2,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { PatientHeaderComponent }  from './patient-header/patient-header.component';
-import { PatientInfoComponent }    from './patient-info/patient-info.component';
-import { ClinicalInfoComponent }   from './clinical-info/clinical-info.component';
-import { RgvReportsComponent }     from './rgv-reports/rgv-reports.component';
-import { DentalChartComponent }    from './dental-chart/dental-chart.component';
+import { PatientHeaderComponent }       from './patient-header/patient-header.component';
+import { PatientInfoComponent }         from './patient-info/patient-info.component';
+import { ClinicalInfoComponent }        from './clinical-info/clinical-info.component';
+import { RgvReportsComponent }          from './rgv-reports/rgv-reports.component';
+import { DentalChartComponent }         from './dental-chart/dental-chart.component';
+import { TreatmentPlansBoardComponent } from './treatment-plans-board/treatment-plans-board.component';
 import { Patient, ClinicalInfo, RgvReport, RgvNote, Tooth } from '../../shared/models/patient.model';
 
 @Component({
@@ -19,6 +20,7 @@ import { Patient, ClinicalInfo, RgvReport, RgvNote, Tooth } from '../../shared/m
     ClinicalInfoComponent,
     RgvReportsComponent,
     DentalChartComponent,
+    TreatmentPlansBoardComponent,   // ← added
   ],
   template: `
     <div class="patient-profile-shell">
@@ -28,10 +30,11 @@ import { Patient, ClinicalInfo, RgvReport, RgvNote, Tooth } from '../../shared/m
       ></app-patient-header>
 
       <div class="profile-content p-4">
-        <app-patient-info   [patient]="patient"></app-patient-info>
-        <app-clinical-info  [info]="clinicalInfo"></app-clinical-info>
-        <app-rgv-reports    [reports]="reports" [notes]="notes"></app-rgv-reports>
-        <app-dental-chart   [teeth]="teeth"></app-dental-chart>
+        <app-patient-info             [patient]="patient"></app-patient-info>
+        <app-clinical-info            [info]="clinicalInfo"></app-clinical-info>
+        <app-rgv-reports              [reports]="reports" [notes]="notes"></app-rgv-reports>
+        <app-dental-chart             [teeth]="teeth"></app-dental-chart>
+        <app-treatment-plans-board    [patientId]="patient.id"></app-treatment-plans-board>
       </div>
     </div>
   `,
@@ -52,7 +55,6 @@ import { Patient, ClinicalInfo, RgvReport, RgvNote, Tooth } from '../../shared/m
 export class PatientProfileComponent implements OnInit {
   doctorName = 'Dr. Arjun';
 
-  // These would come from a service/API using the route param
   patient: Patient = {
     id: '1', name: 'Harshad', location: 'kerala',
     phone: '+91 9995960143', email: '--',
@@ -69,8 +71,8 @@ export class PatientProfileComponent implements OnInit {
   };
 
   reports: RgvReport[] = [
-    { id: 1, imageUrl: 'assets/xray1.jpg', date: '03/11/2025' },
-    { id: 2, imageUrl: 'assets/xray2.jpg', date: '04/11/2025' },
+    { id: 1, imageUrl: 'x-ray/x-ray1.png', date: '03/11/2025' },
+    { id: 2, imageUrl: 'x-ray/x-ray2.png', date: '04/11/2025' },
   ];
 
   notes: RgvNote[] = [
@@ -78,9 +80,7 @@ export class PatientProfileComponent implements OnInit {
     { id: 2, author: 'Arjun', date: 'Nov 3, 2025', content: 'some issues' },
   ];
 
-  // 32 adult teeth — numbers follow FDI notation
   teeth: Tooth[] = [
-    // Upper right (18→11) then upper left (21→28)
     ...[18,17,16,15,14,13,12,11].map(n => ({
       number: n,
       status: [16,11,21,25].includes(n) ? 'treatment-taken' : 'normal'
@@ -89,7 +89,6 @@ export class PatientProfileComponent implements OnInit {
       number: n,
       status: [16,11,21,25].includes(n) ? 'treatment-taken' : 'normal'
     } as Tooth)),
-    // Lower right (48→41) then lower left (31→38)
     ...[48,47,46,45,44,43,42,41].map(n => ({
       number: n,
       status: n === 41 ? 'treatment-taken' : 'normal'
@@ -101,10 +100,7 @@ export class PatientProfileComponent implements OnInit {
 
   constructor(private router: Router) {}
 
-  ngOnInit(): void {
-    // In real app: inject ActivatedRoute, read appointmentId param,
-    // call PatientService.getById(id) and populate above fields
-  }
+  ngOnInit(): void {}
 
   onBack(): void {
     this.router.navigate(['/app/doctor-dashboard']);
