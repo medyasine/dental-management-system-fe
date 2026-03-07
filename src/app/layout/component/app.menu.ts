@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
@@ -30,11 +30,10 @@ export class AppMenu {
           { label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/app'] },
           { label: 'Doctor Dashboard', icon: 'pi pi-fw pi-user', routerLink: ['/app/doctor-dashboard'] },
 
-          // These can temporarily point to Home until you create real pages/routes
-          { label: 'Patients', icon: 'pi pi-fw pi-users', routerLink: ['/app'] },
-          { label: 'Appointments', icon: 'pi pi-fw pi-calendar', routerLink: ['/app'] },
-          { label: 'Billing', icon: 'pi pi-fw pi-credit-card', routerLink: ['/app'] },
-          { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/app'] }
+          { label: 'Patients', icon: 'pi pi-fw pi-users', routerLink: ['/app/patients'] },
+          { label: 'Appointments', icon: 'pi pi-fw pi-calendar', routerLink: ['/app/appointments'] },
+          { label: 'Billing', icon: 'pi pi-fw pi-credit-card', routerLink: ['/app/billing'] },
+          { label: 'Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/app/settings'] }
         ]
       },
       { separator: true },
@@ -48,3 +47,4 @@ export class AppMenu {
     ];
   }
 }
+

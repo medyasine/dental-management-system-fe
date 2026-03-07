@@ -1,7 +1,8 @@
 // src/app/features/patient-profile/treatment-plans-board/treatment-plans-board.component.ts
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PatientProfileStore } from '../store/patient-profile.store';
 
 export type TreatmentStatus = 'plan' | 'in-progress' | 'completed';
 
@@ -24,10 +25,6 @@ export interface TreatmentCard {
   surfaces?: string[];
 }
 
-// ── Tooth image resolver ───────────────────────────────────────────────────
-// Files live in public/teeth/upper/ and public/teeth/lower/
-// Naming: tooth-{quadrant1or4}-{quadrant2or3}.png
-// Left-side teeth (21-28, 31-38) reuse the right-side image with CSS scaleX(-1)
 export function getToothAsset(n: number): ToothAsset {
   if (n >= 11 && n <= 18) {
     const mirror = 20 + (n - 10);
@@ -55,72 +52,91 @@ export function getToothAsset(n: number): ToothAsset {
   templateUrl: './treatment-plans-board.component.html',
   styleUrls: ['./treatment-plans-board.component.scss'],
 })
-export class TreatmentPlansBoardComponent implements OnInit {
-  @Input() patientId: string = '';
+export class TreatmentPlansBoardComponent {
+  @Input() patientId = '';
 
-  // ── Mock data — replace with API calls ─────────────────────────────────────
-  treatments: TreatmentCard[] = [
-    {
-      id: '1', date: 'Nov 11, 2025', toothNumber: 23,
-      diagnosis: 'Reversible Pulpitis', treatmentName: 'EXTRACTION - ADULT',
-      qty: 1, itemPrice: 400, total: 400, doctor: 'Arjun',
-      status: 'plan', surfaces: ['M', 'O'],
-    },
-    {
-      id: '2', date: 'Nov 5, 2025', toothNumber: 41,
-      diagnosis: 'Reversible Pulpitis', treatmentName: 'EXTRACTION OF THIRD MOLAR',
-      qty: 1, itemPrice: 450, total: 450, doctor: 'Arjun',
-      status: 'in-progress',
-    },
-    {
-      id: '3', date: 'Nov 5, 2025', toothNumber: 21,
-      diagnosis: 'Gingivitis', treatmentName: 'EXTRACTION OF DIFFICULT TOOTH',
-      qty: 1, itemPrice: 800, total: 800, doctor: 'Arjun',
-      status: 'completed',
-    },
-    {
-      id: '4', date: 'Nov 4, 2025', toothNumber: 14,
-      diagnosis: 'Periodontitis', treatmentName: 'ROOT CANAL TREATMENT',
-      qty: 1, itemPrice: 3000, total: 3000, doctor: 'Arjun',
-      status: 'completed',
-    },
-  ];
+  constructor(private readonly store: PatientProfileStore) {}
 
-  editingPriceId: string | null = null;
-  editingPriceValue: number = 0;
+  get treatments(): TreatmentCard[] {
+    return this.store.state.treatmentsBoard.treatments;
+  }
 
-  ngOnInit(): void {}
+  get editingPriceId(): string | null {
+    return this.store.state.treatmentsBoard.editingPriceId;
+  }
 
-  // ── Expose asset resolver to template ─────────────────────────────────────
+  set editingPriceId(value: string | null) {
+    this.store.setTreatmentsBoardState({ editingPriceId: value });
+  }
+
+  get editingPriceValue(): number {
+    return this.store.state.treatmentsBoard.editingPriceValue;
+  }
+
+  set editingPriceValue(value: number) {
+    this.store.setTreatmentsBoardState({ editingPriceValue: value });
+  }
+
   getAsset(toothNumber: number): ToothAsset {
     return getToothAsset(toothNumber);
   }
 
-  // ── Column getters ─────────────────────────────────────────────────────────
-  get planCards():       TreatmentCard[] { return this.treatments.filter(t => t.status === 'plan'); }
-  get inProgressCards(): TreatmentCard[] { return this.treatments.filter(t => t.status === 'in-progress'); }
-  get completedCards():  TreatmentCard[] { return this.treatments.filter(t => t.status === 'completed'); }
+  get planCards(): TreatmentCard[] {
+    return this.treatments.filter((treatment) => treatment.status === 'plan');
+  }
 
-  // ── Actions ────────────────────────────────────────────────────────────────
-  markAsCompleted(card: TreatmentCard):   void { card.status = 'completed'; }
-  moveToInProgress(card: TreatmentCard):  void { card.status = 'in-progress'; }
-  deleteCard(card: TreatmentCard):        void { this.treatments = this.treatments.filter(t => t.id !== card.id); }
-  addNotes(card: TreatmentCard):          void { console.log('Add notes', card.id); }
-  presenterMode():                        void { console.log('Presenter mode'); }
+  get inProgressCards(): TreatmentCard[] {
+    return this.treatments.filter((treatment) => treatment.status === 'in-progress');
+  }
+
+  get completedCards(): TreatmentCard[] {
+    return this.treatments.filter((treatment) => treatment.status === 'completed');
+  }
+
+  markAsCompleted(card: TreatmentCard): void {
+    this.updateCard(card.id, (item) => ({ ...item, status: 'completed' }));
+  }
+
+  moveToInProgress(card: TreatmentCard): void {
+    this.updateCard(card.id, (item) => ({ ...item, status: 'in-progress' }));
+  }
+
+  deleteCard(card: TreatmentCard): void {
+    this.store.setTreatmentsBoardState({
+      treatments: this.treatments.filter((item) => item.id !== card.id),
+    });
+  }
+
+  addNotes(card: TreatmentCard): void {
+    console.log('Add notes', card.id);
+  }
+
+  presenterMode(): void {
+    console.log('Presenter mode');
+  }
 
   changeQty(card: TreatmentCard, delta: number): void {
-    card.qty = Math.max(1, card.qty + delta);
-    card.total = card.qty * card.itemPrice;
+    this.updateCard(card.id, (item) => {
+      const qty = Math.max(1, item.qty + delta);
+      return { ...item, qty, total: qty * item.itemPrice };
+    });
   }
 
   startEditPrice(card: TreatmentCard): void {
-    this.editingPriceId = card.id;
-    this.editingPriceValue = card.itemPrice;
+    this.store.setTreatmentsBoardState({
+      editingPriceId: card.id,
+      editingPriceValue: card.itemPrice,
+    });
   }
 
   savePrice(card: TreatmentCard): void {
-    card.itemPrice = this.editingPriceValue;
-    card.total = card.qty * card.itemPrice;
-    this.editingPriceId = null;
+    const value = this.editingPriceValue;
+    this.updateCard(card.id, (item) => ({ ...item, itemPrice: value, total: value * item.qty }));
+    this.store.setTreatmentsBoardState({ editingPriceId: null });
+  }
+
+  private updateCard(id: string, mapper: (card: TreatmentCard) => TreatmentCard): void {
+    const updated = this.treatments.map((item) => (item.id === id ? mapper(item) : item));
+    this.store.setTreatmentsBoardState({ treatments: updated });
   }
 }

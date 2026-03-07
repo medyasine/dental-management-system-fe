@@ -1,5 +1,5 @@
 // src/app/features/patient-profile/rgv-reports/rgv-reports.component.ts
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -25,6 +25,8 @@ import {
 export class RgvReportsComponent {
   @Input({ required: true }) reports: RgvReport[] = [];
   @Input({ required: true }) notes: RgvNote[] = [];
+  @Output() reportsChange = new EventEmitter<RgvReport[]>();
+  @Output() notesChange = new EventEmitter<RgvNote[]>();
 
   // ── Zoom dialog ────────────────────────────────────────────────────────────
   zoomVisible = false;
@@ -59,6 +61,7 @@ export class RgvReportsComponent {
           date: new Date().toLocaleDateString('en-GB').replace(/\//g, '/'),
         } as RgvReport,
       ];
+      this.reportsChange.emit(this.reports);
     });
 
     if (payload.note) {
@@ -75,16 +78,19 @@ export class RgvReportsComponent {
           content: payload.note,
         } as RgvNote,
       ];
+      this.notesChange.emit(this.notes);
     }
   }
 
   // ── Delete ─────────────────────────────────────────────────────────────────
   deleteReport(id: number): void {
     this.reports = this.reports.filter((r) => r.id !== id);
+    this.reportsChange.emit(this.reports);
   }
 
   deleteNote(id: number): void {
     this.notes = this.notes.filter((n) => n.id !== id);
+    this.notesChange.emit(this.notes);
   }
 
   // ── Image helpers ──────────────────────────────────────────────────────────

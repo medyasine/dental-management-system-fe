@@ -1,0 +1,80 @@
+<div class="lab-card">
+  <div class="section-header">
+    <div class="title-wrap">
+      <i class="pi pi-file"></i>
+      <h3>Lab Orders</h3>
+    </div>
+
+    <button class="btn-add" (click)="openDrawer()">Add New Lab Order</button>
+  </div>
+
+  <div class="orders-grid" *ngIf="labOrders.length > 0; else emptyOrders">
+    <article class="order-card" *ngFor="let order of labOrders">
+      <div class="order-top">
+        <strong>{{ order.workName }}</strong>
+        <span class="status">{{ order.status }}</span>
+      </div>
+
+      <div class="dates-row">
+        <div>
+          <p class="label">Order Date</p>
+          <p class="value">{{ order.orderDate }}</p>
+        </div>
+        <div>
+          <p class="label">Delivery Date</p>
+          <p class="value">{{ order.deliveryDate }}</p>
+        </div>
+      </div>
+
+      <p class="details" *ngIf="order.details">{{ order.details }}</p>
+
+      <button class="remove-btn" (click)="removeOrder(order)">Remove</button>
+    </article>
+  </div>
+
+  <ng-template #emptyOrders>
+    <p class="empty-text">No lab orders added yet.</p>
+  </ng-template>
+</div>
+
+<div class="drawer-backdrop" *ngIf="drawerMounted" [class.visible]="drawerOpen" (click)="closeDrawer()">
+  <aside class="drawer" [class.open]="drawerOpen" (click)="$event.stopPropagation()">
+    <div class="drawer-header">
+      <h3>Add New Lab Order</h3>
+      <button class="close-btn" (click)="closeDrawer()" aria-label="Close">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="field">
+        <label>Select Lab Work</label>
+        <select [(ngModel)]="form.workName">
+          <option *ngFor="let item of labWorkOptions" [value]="item">{{ item }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Details</label>
+        <textarea rows="3" [(ngModel)]="form.details" placeholder="Enter details"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Notes</label>
+        <textarea rows="3" [(ngModel)]="form.notes" placeholder="Enter notes"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Expected Delivery Date</label>
+        <input type="date" [(ngModel)]="form.deliveryDate" />
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn-cancel" (click)="closeDrawer()">Cancel</button>
+      <button class="btn-save" [disabled]="!form.workName || !form.deliveryDate" (click)="saveOrder()">
+        Add Order
+      </button>
+    </div>
+  </aside>
+</div>

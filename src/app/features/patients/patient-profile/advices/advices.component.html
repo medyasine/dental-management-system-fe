@@ -1,0 +1,28 @@
+<div class="advices-card">
+  <div class="advices-header">
+    <h3>Advices</h3>
+
+    <div class="date-tabs">
+      <button
+        *ngFor="let session of sessions; let i = index"
+        [class.active]="activeSessionIndex === i"
+        (click)="activeSessionIndex = i">
+        {{ session.label }}
+      </button>
+    </div>
+  </div>
+
+  <div class="input-wrap">
+    <div class="chips">
+      <span class="chip" *ngFor="let item of activeSession.advices">
+        {{ item }}
+        <button class="chip-remove" (click)="removeAdvice(item)">x</button>
+      </span>
+
+      <input
+        [(ngModel)]="newAdvice"
+        placeholder="Type advice and press Enter"
+        (keydown.enter)="onEnter($event)" />
+    </div>
+  </div>
+</div>

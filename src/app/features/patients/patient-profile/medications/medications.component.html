@@ -1,0 +1,233 @@
+<!-- src/app/features/patient-profile/medications/medications.component.html -->
+<div class="med-card">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="med-header">
+    <h3 class="med-title">Medications</h3>
+
+    <div class="header-right">
+      <!-- Date session tabs -->
+      <div class="date-tabs">
+        <button
+          *ngFor="let s of sessions; let i = index"
+          class="date-tab"
+          [class.date-tab-active]="activeSessionIndex === i"
+          (click)="activeSessionIndex = i">
+          {{ s.label }}
+        </button>
+      </div>
+
+      <!-- "Prescribe Medicine" — visible only on non-today sessions that have rows -->
+      <button
+        class="btn-prescribe"
+        *ngIf="!activeSession.isToday && activeSession.prescriptions.length > 0"
+        (click)="prescribe()">
+        Prescribe Medicine
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Medicine select row ─────────────────────────────────────────────── -->
+  <div class="select-row">
+    <p class="select-hint">Click to create new medicines</p>
+
+    <div class="select-and-btn">
+      <!-- Searchable select -->
+      <div class="med-select-wrap" [class.open]="selectOpen">
+        <div class="med-select-trigger" (click)="openSelect()">
+          <input
+            class="med-select-input"
+            [(ngModel)]="selectSearch"
+            placeholder="Select"
+            (focus)="openSelect()"
+            (blur)="closeSelect()"
+          />
+          <i class="pi pi-chevron-down select-arrow"></i>
+        </div>
+
+        <div class="med-dropdown" *ngIf="selectOpen">
+          <div
+            *ngFor="let m of filteredCatalogue"
+            class="med-option"
+            (mousedown)="pickMedicine(m)">
+            {{ m.name }} - {{ m.composition }}
+          </div>
+          <div class="med-option med-option-empty" *ngIf="filteredCatalogue.length === 0">
+            No medicines found
+          </div>
+        </div>
+      </div>
+
+      <!-- Create New Medicine button — always enabled when "today", disabled on past dates -->
+      <button
+        class="btn-create"
+        [class.btn-create-active]="activeSession.isToday"
+        [disabled]="!activeSession.isToday"
+        (click)="openModal()">
+        <span class="plus-circle">⊕</span>
+        Create New Medicine
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Prescriptions table ─────────────────────────────────────────────── -->
+  <div class="table-wrap">
+    <table class="med-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Medicine</th>
+          <th>Content</th>
+          <th>Batch</th>
+          <th>Price</th>
+          <th>Dosage</th>
+          <th>Time</th>
+          <th>Days</th>
+          <th>Qty</th>
+          <th>Advice</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of activeSession.prescriptions; let i = index">
+          <td class="td-num">{{ i + 1 }}</td>
+
+          <td class="td-name">{{ row.medicine.name }}</td>
+
+          <td class="td-content">{{ row.medicine.composition }}</td>
+
+          <td class="td-batch">
+            <select class="cell-select" [(ngModel)]="row.batch">
+              <option *ngFor="let b of row.medicine.batches" [value]="b">{{ b }}</option>
+            </select>
+          </td>
+
+          <td class="td-price">₹{{ row.medicine.price }}</td>
+
+          <td class="td-dosage">
+            <select class="cell-select" [(ngModel)]="row.dosage">
+              <option *ngFor="let d of dosageOptions" [value]="d">{{ d }}</option>
+            </select>
+          </td>
+
+          <td class="td-time">
+            <select class="cell-select" [(ngModel)]="row.time">
+              <option *ngFor="let t of timeOptions" [value]="t">{{ t }}</option>
+            </select>
+          </td>
+
+          <td class="td-days">
+            <div class="stepper">
+              <button class="step-btn" (click)="changeDays(row, -1)">-</button>
+              <span class="step-val">{{ row.days }}</span>
+              <button class="step-btn" (click)="changeDays(row, 1)">+</button>
+            </div>
+          </td>
+
+          <td class="td-qty">
+            <div class="stepper">
+              <button class="step-btn" (click)="changeQty(row, -1)">-</button>
+              <span class="step-val">{{ row.qty }}</span>
+              <button class="step-btn" (click)="changeQty(row, 1)">+</button>
+            </div>
+          </td>
+
+          <td class="td-advice">
+            <select class="cell-select" [(ngModel)]="row.advice">
+              <option *ngFor="let a of adviceOptions" [value]="a">{{ a }}</option>
+            </select>
+          </td>
+
+          <td class="td-del">
+            <button class="del-btn" (click)="removeRow(row)" title="Remove">
+              <i class="pi pi-times"></i>
+            </button>
+          </td>
+        </tr>
+
+        <!-- Empty state -->
+        <tr *ngIf="activeSession.prescriptions.length === 0">
+          <td colspan="11" class="empty-row">No medicines prescribed for this session.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     ADD NEW MEDICINE MODAL
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2 class="modal-title">Add New Medicine</h2>
+      <button class="modal-close" (click)="closeModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-grid">
+
+        <!-- Medicine Name -->
+        <div class="modal-field">
+          <label class="modal-label">Medicine Name <span class="req">*</span></label>
+          <input class="modal-input" [(ngModel)]="newMed.name"
+            placeholder="Enter medicine name" />
+        </div>
+
+        <!-- Composition -->
+        <div class="modal-field">
+          <label class="modal-label">Composition <span class="req">*</span></label>
+          <input class="modal-input" [(ngModel)]="newMed.composition"
+            placeholder="Enter composition" />
+        </div>
+
+        <!-- Category -->
+        <div class="modal-field">
+          <label class="modal-label">Category <span class="req">*</span></label>
+          <select class="modal-input" [(ngModel)]="newMed.category">
+            <option value="" disabled>Select category</option>
+            <option *ngFor="let c of categoryOptions" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <!-- Brand Name -->
+        <div class="modal-field">
+          <label class="modal-label">Brand Name</label>
+          <input class="modal-input" [(ngModel)]="newMed.brandName"
+            placeholder="Enter brand name" />
+        </div>
+
+        <!-- Supplier -->
+        <div class="modal-field">
+          <label class="modal-label">Supplier</label>
+          <select class="modal-input" [(ngModel)]="newMed.supplier">
+            <option value="" disabled>Select supplier</option>
+            <option *ngFor="let s of supplierOptions" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <!-- Reorder Level -->
+        <div class="modal-field">
+          <label class="modal-label">Reorder Level</label>
+          <input class="modal-input" type="number" [(ngModel)]="newMed.reorderLevel"
+            min="0" />
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+      <button class="btn-save"
+        [disabled]="!newMed.name.trim() || !newMed.composition.trim()"
+        (click)="saveNewMedicine()">
+        Save Medicine
+      </button>
+    </div>
+
+  </div>
+</div>

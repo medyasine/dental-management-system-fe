@@ -1,0 +1,304 @@
+<div class="invoice-shell p-4" *ngIf="!showGeneratedPreview; else generatedPreviewView">
+  <div class="invoice-card">
+    <div class="invoice-header">
+      <div class="header-left">
+        <button class="back-btn" type="button" (click)="goBack()">
+          <i class="pi pi-arrow-left"></i>
+          Back
+        </button>
+        <h2>Invoice Preview</h2>
+      </div>
+
+      <button class="medication-btn" type="button" (click)="goToMedication()">
+        <i class="pi pi-print"></i>
+        Medication
+      </button>
+    </div>
+
+    <section class="block">
+      <h3>Treatment</h3>
+      <table class="invoice-table" *ngIf="draft.treatments.length > 0; else noTreatments">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Treatment Name</th>
+            <th>Status</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of draft.treatments; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.status }}</td>
+            <td>{{ row.qty }}</td>
+            <td>{{ row.price | currency: 'INR':'symbol':'1.0-0' }}</td>
+            <td>{{ row.total | currency: 'INR':'symbol':'1.0-0' }}</td>
+            <td>
+              <button class="icon-btn" type="button" (click)="removeTreatment(row.id)">
+                <i class="pi pi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noTreatments>
+        <p class="empty">No treatment rows.</p>
+      </ng-template>
+    </section>
+
+    <section class="block">
+      <h3>Medicine</h3>
+      <table class="invoice-table" *ngIf="draft.medications.length > 0; else noMeds">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Medicine Name</th>
+            <th>Content</th>
+            <th>Batch</th>
+            <th>Expiry Date</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of draft.medications; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ row.medicine.name }}</td>
+            <td>{{ row.medicine.composition }}</td>
+            <td>{{ row.batch }}</td>
+            <td>{{ getMedicineExpiry(row.batch) }}</td>
+            <td>{{ row.qty }}</td>
+            <td>{{ row.medicine.price | currency: 'INR':'symbol':'1.0-0' }}</td>
+            <td>{{ row.qty * row.medicine.price | currency: 'INR':'symbol':'1.0-0' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noMeds>
+        <p class="empty">No medicine rows.</p>
+      </ng-template>
+    </section>
+
+    <section class="add-treatment-block">
+      <label>Add New Treatment</label>
+      <div class="search-input-wrap">
+        <input type="text" placeholder="Search and select treatment" disabled />
+        <i class="pi pi-chevron-down"></i>
+      </div>
+    </section>
+
+    <section class="billing-layout">
+      <div class="billing-spacer"></div>
+
+      <aside class="billing-card">
+        <div class="field">
+          <label>Enter Discount</label>
+          <input type="number" min="0" [(ngModel)]="draft.discount" (ngModelChange)="onDiscountChange()" placeholder="Type..." />
+        </div>
+
+        <h3>Summary</h3>
+
+        <div class="row">
+          <span>Total Treatment</span>
+          <strong>{{ treatmentTotal | currency: 'INR':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="row">
+          <span>Total Medicine</span>
+          <strong>{{ medicineTotal | currency: 'INR':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="row discount">
+          <span>Discount Applied</span>
+          <strong>{{ discountAmount | currency: 'INR':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="row total">
+          <span>Net Payable</span>
+          <strong>{{ grandTotal | currency: 'INR':'symbol':'1.2-2' }}</strong>
+        </div>
+
+        <button class="generate-btn" type="button" (click)="generateInvoice()">Generate Invoice & Finish Consultation</button>
+      </aside>
+    </section>
+  </div>
+</div>
+
+<ng-template #generatedPreviewView>
+  <div class="invoice-shell p-4 generated-shell">
+    <div class="generated-card">
+      <div class="generated-grid print-area">
+        <section class="doc-col">
+          <h3>Invoice</h3>
+          <div class="doc-preview">
+            <div class="doc-paper">
+              <div class="paper-header">
+                <div>
+                  <p class="brand">{{ clinicName }}</p>
+                  <p class="muted">{{ clinicAddress }}</p>
+                  <p class="muted">{{ clinicPhone }}</p>
+                </div>
+                <div class="right">
+                  <h4>INVOICE</h4>
+                  <p class="muted">No: {{ invoiceNumber }}</p>
+                  <p class="muted">Date: {{ todayDateLabel }}</p>
+                </div>
+              </div>
+
+              <div class="patient-grid">
+                <div><span>Patient Name</span><strong>{{ draft.patient.name }}</strong></div>
+                <div><span>Patient ID</span><strong>{{ draft.patient.patientId || '--' }}</strong></div>
+                <div><span>Phone</span><strong>{{ draft.patient.phone || '--' }}</strong></div>
+                <div><span>Location</span><strong>{{ draft.patient.location || '--' }}</strong></div>
+              </div>
+
+              <h5>Treatment</h5>
+              <table class="mini-table">
+                <thead>
+                  <tr><th>#</th><th>Treatment</th><th>Status</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of draft.treatments; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ t.name }}</td>
+                    <td>{{ t.status }}</td>
+                    <td>{{ t.qty }}</td>
+                    <td>{{ t.price | currency: 'INR':'symbol':'1.0-0' }}</td>
+                    <td>{{ t.total | currency: 'INR':'symbol':'1.0-0' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h5>Medicine Details</h5>
+              <table class="mini-table">
+                <thead>
+                  <tr><th>#</th><th>Medicine</th><th>Batch</th><th>Dosage</th><th>Qty</th><th>Total</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let m of draft.medications; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ m.medicine.name }}</td>
+                    <td>{{ m.batch }}</td>
+                    <td>{{ m.dosage }}</td>
+                    <td>{{ m.qty }}</td>
+                    <td>{{ m.qty * m.medicine.price | currency: 'INR':'symbol':'1.0-0' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="invoice-summary-box">
+                <div><span>Sub Total</span><strong>{{ subtotal | currency: 'INR':'symbol':'1.2-2' }}</strong></div>
+                <div><span>Discount</span><strong>{{ discountAmount | currency: 'INR':'symbol':'1.2-2' }}</strong></div>
+                <div><span>Total Payable</span><strong>{{ grandTotal | currency: 'INR':'symbol':'1.2-2' }}</strong></div>
+                <div><span>Payment Received</span><strong>{{ grandTotal | currency: 'INR':'symbol':'1.2-2' }}</strong></div>
+                <div class="due"><span>Balance Due</span><strong>{{ 0 | currency: 'INR':'symbol':'1.2-2' }}</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="doc-col">
+          <h3>Prescription</h3>
+          <div class="doc-preview">
+            <div class="doc-paper prescription-paper">
+              <div class="paper-header">
+                <div>
+                  <p class="brand">{{ clinicName }}</p>
+                  <p class="muted">{{ clinicAddress }}</p>
+                  <p class="muted">{{ clinicPhone }}</p>
+                </div>
+                <div class="right">
+                  <p class="muted">Dr {{ doctorName }}</p>
+                  <p class="muted">{{ todayDateLabel }}</p>
+                </div>
+              </div>
+
+              <div class="patient-grid simple">
+                <div><span>Patient Name</span><strong>{{ draft.patient.name }}</strong></div>
+                <div><span>Phone</span><strong>{{ draft.patient.phone || '--' }}</strong></div>
+                <div><span>Gender</span><strong>{{ draft.patient.gender }}</strong></div>
+                <div><span>Location</span><strong>{{ draft.patient.location || '--' }}</strong></div>
+              </div>
+
+              <div class="clinical-grid">
+                <div>
+                  <h5>Patient Complaints</h5>
+                  <ul><li>Irregularly placed tooth</li><li>Broken filling</li></ul>
+                </div>
+                <div>
+                  <h5>Medical History</h5>
+                  <ul><li>{{ draft.patient.alerts?.[0] || 'Diabetic' }}</li></ul>
+                </div>
+                <div>
+                  <h5>Dental History</h5>
+                  <ul><li>Cold response</li></ul>
+                </div>
+                <div>
+                  <h5>On Examination</h5>
+                  <ul><li>TOP Negative</li></ul>
+                </div>
+              </div>
+
+              <h5>Dental Procedures</h5>
+              <table class="mini-table">
+                <thead>
+                  <tr><th>#</th><th>Teeth</th><th>Diagnosis</th><th>Treatment</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of draft.treatments; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>23</td>
+                    <td>Reversible Pulpitis</td>
+                    <td>{{ t.name }}</td>
+                    <td>{{ t.status }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h5>Medicine Details</h5>
+              <table class="mini-table">
+                <thead>
+                  <tr><th>#</th><th>Medicine Name</th><th>Dosage</th><th>Time</th><th>Days</th><th>Advice</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let m of draft.medications; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ m.medicine.name }} ({{ m.medicine.composition }})</td>
+                    <td>{{ m.dosage }}</td>
+                    <td>{{ m.time }}</td>
+                    <td>{{ m.days }}</td>
+                    <td>{{ medicineAdviceCode(m.advice) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="note-block">
+                <h5>RVG Notes</h5>
+                <ul><li *ngFor="let advice of draft.advices">{{ advice }}</li><li *ngIf="draft.advices.length === 0">No issues</li></ul>
+              </div>
+
+              <div class="note-block">
+                <h5>Doctor Notes</h5>
+                <ul><li>consultation notes</li></ul>
+              </div>
+
+              <div class="signature-block">
+                <div class="tooth-mark">\|/</div>
+                <div class="line"></div>
+                <p>{{ doctorName }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="generated-actions no-print">
+        <button class="ghost-btn" type="button" (click)="backToInvoiceEditor()">Back</button>
+        <button class="ghost-btn" type="button" (click)="printBoth()">Print Both</button>
+        <button class="primary-btn" type="button" (click)="finishConsultation()">Finish Consultation</button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+

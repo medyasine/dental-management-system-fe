@@ -1,0 +1,563 @@
+﻿import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import {
+  NewClinicDialogComponent,
+  NewClinicPayload,
+} from './new-clinic-dialog/new-clinic-dialog.component';
+
+type ClinicStatus = 'Active' | 'Inactive';
+
+interface ClinicRow {
+  id: string;
+  name: string;
+  email: string;
+  frontDeskOfficer: string;
+  officerEmail: string;
+  contactNumber: string;
+  description: string;
+  status: ClinicStatus;
+}
+
+@Component({
+  selector: 'app-clinics-page',
+  standalone: true,
+  imports: [CommonModule, FormsModule, NewClinicDialogComponent],
+  template: `
+    <div class="clinics-page p-3 lg:p-4">
+      <div class="clinics-shell">
+        <div class="crumb">Home <span>&gt;</span> Clinic</div>
+
+        <div class="toolbar-row">
+          <div class="left-actions">
+            <select [(ngModel)]="bulkAction">
+              <option value="">No Action</option>
+              <option value="activate">Activate</option>
+              <option value="deactivate">Deactivate</option>
+              <option value="delete">Delete</option>
+            </select>
+            <button class="btn-gray" type="button" (click)="onApplyBulk()">Apply</button>
+            <button class="btn-blue" type="button" (click)="onExport()"><i class="pi pi-download"></i> Export</button>
+          </div>
+
+          <div class="right-actions">
+            <select [(ngModel)]="typeFilter" (change)="applyFilter()">
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+
+            <div class="search-wrap">
+              <i class="pi pi-search"></i>
+              <input
+                type="text"
+                [(ngModel)]="search"
+                (input)="applyFilter()"
+                placeholder="Search..." />
+            </div>
+
+            <button class="btn-dark" type="button" (click)="onAdvancedFilter()">
+              <i class="pi pi-filter"></i>
+              Advanced Filter
+            </button>
+
+            <button class="btn-cyan" type="button" (click)="onNewClinic()">
+              <i class="pi pi-plus-circle"></i>
+              New
+            </button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="name-col">Name</th>
+                  <th>Front Desk Officer</th>
+                  <th>Contact Number</th>
+                  <th>Description</th>
+                  <th class="status-col">Status</th>
+                  <th class="action-col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let clinic of filteredRows">
+                  <td>
+                    <div class="name-cell">
+                      <span class="avatar">{{ initials(clinic.name) }}</span>
+                      <div>
+                        <strong>{{ clinic.name }}</strong>
+                        <p>{{ clinic.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div>
+                      <strong>{{ clinic.frontDeskOfficer }}</strong>
+                      <p>{{ clinic.officerEmail }}</p>
+                    </div>
+                  </td>
+                  <td>{{ clinic.contactNumber }}</td>
+                  <td>
+                    <div class="desc">{{ clinic.description }}</div>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="toggle-btn"
+                      [class.active]="clinic.status === 'Active'"
+                      (click)="toggleStatus(clinic)">
+                      <span></span>
+                    </button>
+                  </td>
+                  <td>
+                    <div class="actions">
+                      <button type="button" (click)="onView(clinic)"><i class="pi pi-eye"></i></button>
+                      <button type="button" (click)="onEdit(clinic)"><i class="pi pi-pencil"></i></button>
+                      <button type="button" class="danger" (click)="onDelete(clinic)"><i class="pi pi-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr *ngIf="filteredRows.length === 0">
+                  <td colspan="6" class="empty">No clinics found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer">
+            <div class="left">
+              <span>Show</span>
+              <select [(ngModel)]="pageSize">
+                <option [ngValue]="10">10</option>
+                <option [ngValue]="25">25</option>
+                <option [ngValue]="50">50</option>
+              </select>
+              <span>entries</span>
+              <span class="count">Showing 1 to {{ filteredRows.length }} of {{ filteredRows.length }} entries</span>
+            </div>
+
+            <div class="pager">
+              <button type="button" disabled>Previous</button>
+              <button type="button" class="active">1</button>
+              <button type="button" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-new-clinic-dialog
+      [(visible)]="showNewClinicDialog"
+      (save)="createClinic($event)">
+    </app-new-clinic-dialog>
+  `,
+  styles: [
+    `
+      .clinics-page {
+        background: #e9fbfb;
+        min-height: 100vh;
+      }
+
+      .clinics-shell {
+        margin: 0 auto;
+        max-width: 1460px;
+      }
+
+      .crumb {
+        color: #81879a;
+        font-size: 0.86rem;
+        margin-bottom: 0.8rem;
+
+        span {
+          margin: 0 0.2rem;
+        }
+      }
+
+      .toolbar-row {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+      }
+
+      .left-actions,
+      .right-actions {
+        align-items: center;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      select,
+      input {
+        background: #fff;
+        border: 1px solid #e2e7ef;
+        border-radius: 7px;
+        color: #3b4658;
+        font-size: 0.86rem;
+        min-height: 38px;
+        padding: 0 0.7rem;
+      }
+
+      .search-wrap {
+        align-items: center;
+        background: #fff;
+        border: 1px solid #e2e7ef;
+        border-radius: 7px;
+        display: flex;
+        gap: 0.4rem;
+        min-height: 38px;
+        padding: 0 0.6rem;
+
+        i {
+          color: #9aa3b3;
+          font-size: 0.85rem;
+        }
+
+        input {
+          border: none;
+          min-height: 34px;
+          padding: 0;
+          width: 180px;
+        }
+      }
+
+      .btn-gray,
+      .btn-blue,
+      .btn-dark,
+      .btn-cyan {
+        border: none;
+        border-radius: 7px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.86rem;
+        font-weight: 700;
+        min-height: 38px;
+        padding: 0 0.9rem;
+      }
+
+      .btn-gray {
+        background: #c8ced8;
+        color: #2c3545;
+      }
+
+      .btn-blue {
+        background: #29b6dc;
+      }
+
+      .btn-dark {
+        background: #2f3643;
+      }
+
+      .btn-cyan {
+        background: #26bfde;
+      }
+
+      .table-card {
+        background: #fff;
+        border: 1px solid #e7ecf3;
+        border-radius: 10px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 1180px;
+        width: 100%;
+
+        th {
+          background: #24bbdf;
+          color: #fff;
+          font-size: 0.87rem;
+          font-weight: 700;
+          padding: 0.72rem 0.7rem;
+          text-align: left;
+        }
+
+        th.name-col {
+          border-top-left-radius: 8px;
+        }
+
+        th.action-col {
+          border-top-right-radius: 8px;
+        }
+
+        td {
+          border-bottom: 1px solid #edf2f7;
+          color: #3a4658;
+          font-size: 0.88rem;
+          padding: 0.75rem 0.7rem;
+          vertical-align: middle;
+
+          p {
+            color: #8b94a5;
+            font-size: 0.8rem;
+            margin: 0.1rem 0 0;
+          }
+        }
+      }
+
+      .name-cell {
+        align-items: center;
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .avatar {
+        align-items: center;
+        background: #e6ebf3;
+        border-radius: 999px;
+        color: #5b6475;
+        display: inline-flex;
+        font-size: 0.75rem;
+        font-weight: 700;
+        height: 34px;
+        justify-content: center;
+        width: 34px;
+      }
+
+      .desc {
+        color: #6e7787;
+        max-width: 460px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .toggle-btn {
+        background: #d6dde8;
+        border: none;
+        border-radius: 999px;
+        cursor: pointer;
+        height: 22px;
+        position: relative;
+        width: 38px;
+
+        span {
+          background: #fff;
+          border-radius: 999px;
+          height: 16px;
+          left: 3px;
+          position: absolute;
+          top: 3px;
+          transition: all 0.16s ease;
+          width: 16px;
+        }
+
+        &.active {
+          background: #21cfa1;
+
+          span {
+            left: 19px;
+          }
+        }
+      }
+
+      .actions {
+        display: inline-flex;
+        gap: 0.35rem;
+
+        button {
+          align-items: center;
+          background: #fff;
+          border: 1px solid #e4e9f1;
+          border-radius: 7px;
+          color: #728096;
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 0.85rem;
+          height: 30px;
+          justify-content: center;
+          width: 30px;
+        }
+
+        button.danger {
+          color: #ef4444;
+        }
+      }
+
+      .table-footer {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        padding: 0.7rem;
+
+        .left {
+          align-items: center;
+          color: #7b8597;
+          display: flex;
+          font-size: 0.85rem;
+          gap: 0.45rem;
+
+          select {
+            min-height: 32px;
+          }
+
+          .count {
+            margin-left: 0.35rem;
+          }
+        }
+      }
+
+      .pager {
+        display: inline-flex;
+        gap: 0.3rem;
+
+        button {
+          background: #fff;
+          border: 1px solid #dde4ee;
+          border-radius: 6px;
+          color: #6f7a8f;
+          cursor: pointer;
+          font-size: 0.8rem;
+          min-height: 30px;
+          min-width: 30px;
+          padding: 0 0.55rem;
+
+          &.active {
+            background: #27bee0;
+            border-color: #27bee0;
+            color: #fff;
+          }
+
+          &:disabled {
+            cursor: default;
+            opacity: 0.55;
+          }
+        }
+      }
+
+      .empty {
+        color: #9ca3b4;
+        font-style: italic;
+        text-align: center;
+      }
+
+      @media (max-width: 1220px) {
+        .toolbar-row {
+          align-items: stretch;
+          flex-direction: column;
+          gap: 0.55rem;
+        }
+
+        .left-actions,
+        .right-actions {
+          flex-wrap: wrap;
+        }
+      }
+    `,
+  ],
+})
+export class ClinicsPage {
+  bulkAction = '';
+  typeFilter: 'all' | 'active' | 'inactive' = 'all';
+  pageSize = 10;
+  search = '';
+  showNewClinicDialog = false;
+
+  rows: ClinicRow[] = [
+    {
+      id: 'clinic-1',
+      name: 'SmileCare Dental Clinic',
+      email: 'info@smilecaredentalclinic.com',
+      frontDeskOfficer: 'Ayesha Khalid',
+      officerEmail: 'ayesha.khalid@smilecaredentalclinic.com',
+      contactNumber: '0312345678',
+      description: 'A modern cosmetic and family dentistry practice focused on smile makeovers and preventive care.',
+      status: 'Active',
+    },
+  ];
+
+  filteredRows: ClinicRow[] = [...this.rows];
+
+  applyFilter(): void {
+    const q = this.search.toLowerCase().trim();
+    this.filteredRows = this.rows.filter((row) => {
+      const matchesSearch =
+        row.name.toLowerCase().includes(q) ||
+        row.frontDeskOfficer.toLowerCase().includes(q) ||
+        row.contactNumber.includes(q) ||
+        row.description.toLowerCase().includes(q);
+
+      if (!matchesSearch) {
+        return false;
+      }
+
+      if (this.typeFilter === 'active') {
+        return row.status === 'Active';
+      }
+
+      if (this.typeFilter === 'inactive') {
+        return row.status === 'Inactive';
+      }
+
+      return true;
+    });
+  }
+
+  initials(name: string): string {
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  createClinic(payload: NewClinicPayload): void {
+    const normalizedName = payload.name.trim();
+    const newRow: ClinicRow = {
+      id: `clinic-${Date.now()}`,
+      name: normalizedName,
+      email: payload.email,
+      frontDeskOfficer: 'Unassigned',
+      officerEmail: payload.email,
+      contactNumber: payload.contactNumber,
+      description: payload.description || `${payload.speciality || 'General Dentistry'} clinic`,
+      status: payload.status,
+    };
+
+    this.rows = [newRow, ...this.rows];
+    this.applyFilter();
+  }
+
+  toggleStatus(clinic: ClinicRow): void {
+    clinic.status = clinic.status === 'Active' ? 'Inactive' : 'Active';
+    this.applyFilter();
+  }
+
+  onApplyBulk(): void {
+    console.log('Apply bulk action', this.bulkAction);
+  }
+
+  onExport(): void {
+    console.log('Export clinics');
+  }
+
+  onAdvancedFilter(): void {
+    console.log('Open advanced filter');
+  }
+
+  onNewClinic(): void {
+    this.showNewClinicDialog = true;
+  }
+
+  onView(clinic: ClinicRow): void {
+    console.log('View clinic', clinic.id);
+  }
+
+  onEdit(clinic: ClinicRow): void {
+    console.log('Edit clinic', clinic.id);
+  }
+
+  onDelete(clinic: ClinicRow): void {
+    this.rows = this.rows.filter((row) => row.id !== clinic.id);
+    this.applyFilter();
+  }
+}
