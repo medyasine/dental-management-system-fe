@@ -1,4 +1,4 @@
-<div class="patient-info-card">
+﻿<div class="patient-info-card">
 
   <!-- Top row: name far left | contact + view profile far right -->
   <div class="info-top-row">
@@ -62,7 +62,7 @@
           <i class="pi pi-exclamation-circle"></i>
           {{ alert }}
         </span>
-        <span *ngIf="!patient.alerts?.length" class="meta-value">—</span>
+        <span *ngIf="!patient.alerts.length" class="meta-value">--</span>
       </div>
     </div>
 

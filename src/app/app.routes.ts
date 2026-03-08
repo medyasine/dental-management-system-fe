@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { AppLayout } from './layout/component/app.layout';
 import { Notfound } from './pages/notfound/notfound';
 
@@ -11,6 +11,31 @@ export const appRoutes: Routes = [
       {
         path: '',
         loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+      },
+      {
+        path: 'home-select',
+        loadComponent: () =>
+          import('./features/role-dashboards/home-select.page').then((m) => m.HomeSelectPage),
+      },
+      {
+        path: 'dashboards/admin',
+        loadComponent: () =>
+          import('./features/role-dashboards/admin-dashboard.page').then((m) => m.AdminDashboardPage),
+      },
+      {
+        path: 'dashboards/dentist',
+        loadComponent: () =>
+          import('./features/role-dashboards/dentist-dashboard.page').then((m) => m.DentistDashboardPage),
+      },
+      {
+        path: 'dashboards/assistant',
+        loadComponent: () =>
+          import('./features/role-dashboards/assistant-dashboard.page').then((m) => m.AssistantDashboardPage),
+      },
+      {
+        path: 'dashboards/reception',
+        loadComponent: () =>
+          import('./features/role-dashboards/reception-dashboard.page').then((m) => m.ReceptionDashboardPage),
       },
       {
         path: 'doctor-dashboard',
@@ -33,16 +58,6 @@ export const appRoutes: Routes = [
         path: 'billing',
         loadComponent: () =>
           import('./features/billing/billing.page').then((m) => m.BillingPage),
-      },
-      {
-        path: 'clinics',
-        loadComponent: () =>
-          import('./features/clinics/clinics.page').then((m) => m.ClinicsPage),
-      },
-      {
-        path: 'front-desk-officers',
-        loadComponent: () =>
-          import('./features/front-desk-officers/front-desk-officers.page').then((m) => m.FrontDeskOfficersPage),
       },
       {
         path: 'settings',

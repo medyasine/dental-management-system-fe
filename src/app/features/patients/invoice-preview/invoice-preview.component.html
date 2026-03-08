@@ -1,4 +1,4 @@
-<div class="invoice-shell p-4" *ngIf="!showGeneratedPreview; else generatedPreviewView">
+﻿<div class="invoice-shell p-4" *ngIf="!showGeneratedPreview; else generatedPreviewView">
   <div class="invoice-card">
     <div class="invoice-header">
       <div class="header-left">
@@ -228,7 +228,7 @@
                 </div>
                 <div>
                   <h5>Medical History</h5>
-                  <ul><li>{{ draft.patient.alerts?.[0] || 'Diabetic' }}</li></ul>
+                  <ul><li>{{ draft.patient.alerts[0] || 'Diabetic' }}</li></ul>
                 </div>
                 <div>
                   <h5>Dental History</h5>
@@ -301,4 +301,5 @@
     </div>
   </div>
 </ng-template>
+
 

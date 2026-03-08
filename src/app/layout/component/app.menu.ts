@@ -27,7 +27,18 @@ export class AppMenu {
         label: 'Dental System',
         items: [
           // Home page inside the Sakai layout shell
-          { label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/app'] },
+          {
+            label: 'Home',
+            icon: 'pi pi-fw pi-home',
+            path: '/home',
+            items: [
+              { label: 'Home Select', icon: 'pi pi-fw pi-th-large', routerLink: ['/app/home-select'] },
+              { label: 'Admin', icon: 'pi pi-fw pi-chart-line', routerLink: ['/app/dashboards/admin'] },
+              { label: 'Dentist', icon: 'pi pi-fw pi-user-md', routerLink: ['/app/dashboards/dentist'] },
+              { label: 'Assistant', icon: 'pi pi-fw pi-briefcase', routerLink: ['/app/dashboards/assistant'] },
+              { label: 'Reception', icon: 'pi pi-fw pi-phone', routerLink: ['/app/dashboards/reception'] },
+            ],
+          },
           { label: 'Doctor Dashboard', icon: 'pi pi-fw pi-user', routerLink: ['/app/doctor-dashboard'] },
 
           { label: 'Patients', icon: 'pi pi-fw pi-users', routerLink: ['/app/patients'] },
@@ -47,4 +58,6 @@ export class AppMenu {
     ];
   }
 }
+
+
 
